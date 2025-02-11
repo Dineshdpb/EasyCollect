@@ -1,28 +1,39 @@
 {
   "expo": {
-    "name": "collectionAPP",
-    "slug": "collectionAPP",
+    "name": "Collection Manager",
+    "slug": "easycollect",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "userInterfaceStyle": "light",
+    "userInterfaceStyle": "dark",
     "newArchEnabled": true,
     "splash": {
-      "image": "./assets/splash-icon.png",
+      "image": "./assets/splash.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#1a1a1a"
     },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.yourname.collectionmanager"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
-      }
+        "backgroundColor": "#1a1a1a"
+      },
+      "package": "com.dineshdpb.collectionmanager"
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "62bac9c6-bfe8-4f1c-a088-d4599d82c224"
+      }
+    },
+    "owner": "dineshpb72"
   }
 }
