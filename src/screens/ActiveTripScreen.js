@@ -106,12 +106,12 @@ export default function ActiveTripScreen({ route, navigation }) {
     navigation.navigate("UpdateShop", {
       shopId: shop.id,
       shopName: shop.name,
+      collectionId,
       initialData: {
         amount: shop.amount,
         notes: shop.notes,
         isClosed: shop.isClosed,
         paymentMethod: shop.paymentMethod,
-        previousAmounts: shop.previousAmounts || [],
       },
       onUpdate: (updatedData) => handleShopUpdated(shop.id, updatedData),
     });
@@ -196,12 +196,12 @@ export default function ActiveTripScreen({ route, navigation }) {
     navigation.navigate("UpdateShop", {
       shopId: shop.id,
       shopName: shop.name,
+      collectionId,
       initialData: {
         amount: shop.amount,
         notes: shop.notes,
         isClosed: shop.isClosed,
         paymentMethod: shop.paymentMethod,
-        previousAmounts: shop.previousAmounts || [],
       },
       onUpdate: (updatedData) => handleShopUpdated(shop.id, updatedData),
     });

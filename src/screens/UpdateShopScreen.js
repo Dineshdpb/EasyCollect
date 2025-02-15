@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -10,10 +10,11 @@ import {
 } from "react-native";
 import { Button } from "../components/common/Button";
 import { useTheme } from "../context/ThemeContext";
+import { storage } from "../storage/asyncStorage";
 
 export default function UpdateShopScreen({ route, navigation }) {
   const { theme } = useTheme();
-  const { shopId, onUpdate, initialData } = route.params;
+  const { shopId, onUpdate, initialData, collectionId } = route.params;
   const [activeTab, setActiveTab] = useState("update");
   const [amount, setAmount] = useState(initialData?.amount?.toString() || "");
   const [notes, setNotes] = useState(initialData?.notes || "");
@@ -21,6 +22,44 @@ export default function UpdateShopScreen({ route, navigation }) {
   const [paymentMethod, setPaymentMethod] = useState(
     initialData?.paymentMethod || "CASH"
   );
+  const [shopHistory, setShopHistory] = useState([]);
+
+  useEffect(() => {
+    loadShopHistory();
+  }, []);
+
+  const loadShopHistory = async () => {
+    try {
+      const collection = await storage.getCollectionById(collectionId);
+      if (!collection) {
+        console.warn("Collection not found");
+        return;
+      }
+
+      // Get all visits from completed trips
+      const allVisits = collection.trips
+        .filter((trip) => trip.status === "COMPLETED")
+        .flatMap((trip) => {
+          const shopVisit = trip.shops.find((s) => s.id === shopId);
+          if (shopVisit) {
+            return [
+              {
+                ...shopVisit,
+                tripDate: trip.startTime,
+                tripId: trip.id,
+              },
+            ];
+          }
+          return [];
+        })
+        .sort((a, b) => new Date(b.visitTime) - new Date(a.visitTime));
+
+      setShopHistory(allVisits);
+    } catch (error) {
+      console.warn("Error loading shop history:", error);
+      setShopHistory([]);
+    }
+  };
 
   const handleSubmit = () => {
     const updateData = {
@@ -104,22 +143,22 @@ export default function UpdateShopScreen({ route, navigation }) {
 
   const renderHistoryTab = () => (
     <View>
-      {initialData?.previousAmounts?.length > 0 ? (
-        initialData.previousAmounts.map((prev, index) => (
+      {shopHistory.length > 0 ? (
+        shopHistory.map((visit, index) => (
           <View key={index} style={styles.historyItem}>
             <View style={styles.historyHeader}>
               <Text style={styles.historyDate}>
-                {new Date(prev.date).toLocaleDateString()}
+                {new Date(visit.tripDate).toLocaleDateString()}
               </Text>
-              <Text style={styles.historyAmount}>₹{prev.amount || 0}</Text>
+              <Text style={styles.historyAmount}>₹{visit.amount || 0}</Text>
             </View>
             <View style={styles.historyDetails}>
               <Text style={styles.paymentMethod}>
-                {prev.paymentMethod || "CASH"}
+                {visit.paymentMethod || "CASH"}
               </Text>
-              {prev.isClosed && <Text style={styles.closedTag}>CLOSED</Text>}
+              {visit.isClosed && <Text style={styles.closedTag}>CLOSED</Text>}
             </View>
-            {prev.notes && <Text style={styles.notes}>{prev.notes}</Text>}
+            {visit.notes && <Text style={styles.notes}>{visit.notes}</Text>}
           </View>
         ))
       ) : (
