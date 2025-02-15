@@ -26,9 +26,11 @@ export default function CollectionDetailScreen({ route, navigation }) {
   const [currentTrip, setCurrentTrip] = useState(null);
   const { theme } = useTheme();
 
-  useEffect(() => {
-    loadCollection();
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      loadCollection();
+    }, [])
+  );
 
   useEffect(() => {
     navigation.setOptions({

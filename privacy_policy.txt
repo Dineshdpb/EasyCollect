@@ -1,0 +1,90 @@
+Privacy Policy for Easy Collect
+Last Updated: 15-02-2025
+
+1. Introduction
+
+Welcome to Easy Collect ("we," "our," or "us"). We respect your privacy and are committed to protecting any data that we collect. This privacy policy explains our practices regarding your information and how we handle it.
+
+2. Information Collection
+
+Our app is designed with privacy in mind and operates primarily using local storage (AsyncStorage) on your device. We do not collect, store, or transmit your personal data to external servers. All your collection data is stored locally on your device.
+
+2.1 Information Stored Locally:
+- Collection items data
+- Categories and organization settings
+- App preferences and settings
+- User-created lists and inventories
+
+2.2 Permissions Required:
+- Storage access (to save and manage your collection data locally)
+- Camera access (if implemented, for adding photos to collections)
+- Photo library access (if implemented, for selecting existing photos)
+
+3. Data Usage
+
+3.1 Local Data:
+- All data is stored locally on your device using AsyncStorage
+- Data is only used for app functionality
+- No data is transmitted to external servers
+- No analytics or tracking systems are implemented
+
+3.2 Data Security:
+- Your data remains on your device
+- Data security depends on your device's security settings
+- We recommend keeping your device's operating system up-to-date
+
+4. Data Sharing
+
+We do not share your data with any third parties because:
+- All data is stored locally on your device
+- We do not collect or transmit any personal information
+- We do not have access to your stored data
+
+5. Data Backup
+
+5.1 Local Backup:
+- Users are responsible for backing up their device data
+- Data may be lost if the app is uninstalled or device is reset
+- We recommend regular device backups
+
+6. Children's Privacy
+
+Our app does not knowingly collect any personal information from children under 13. The app is intended for general audiences and can be safely used by children as all data remains local to the device.
+
+7. Changes to Privacy Policy
+
+We may update this privacy policy from time to time. We will notify users of any changes by:
+- Updating the "Last Updated" date
+- Providing in-app notifications of significant changes
+- Requesting review of updated terms when necessary
+
+8. Your Rights
+
+You have complete control over your data because:
+- All data is stored locally on your device
+- You can delete app data at any time
+- You can uninstall the app to remove all associated data
+
+9. Contact Information
+
+If you have questions about this privacy policy or our privacy practices, please contact us at:
+[Your Contact Email]
+
+10. Consent
+
+By using our app, you consent to our privacy policy and agree to its terms. If you disagree with this policy, please do not use our app.
+
+11. App Stores
+
+This app is distributed through Google Play Store and may be subject to additional privacy requirements as per their policies.
+
+12. Data Deletion
+
+To delete all app data, you can:
+- Clear app data through your device settings
+- Uninstall the app
+- Use the in-app reset feature (if implemented)
+
+---
+Easy Collect
+Last Updated: 15-02-2025 

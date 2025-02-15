@@ -25,17 +25,13 @@ export default function ActiveTripScreen({ route, navigation }) {
 
   useEffect(() => {
     loadTripData();
-    const backHandler = BackHandler.addEventListener(
-      "hardwareBackPress",
-      handleBackPress
-    );
-    return () => backHandler.remove();
+    //
   }, []);
 
-  const handleBackPress = () => {
-    confirmEndTrip();
-    return true;
-  };
+  // const handleBackPress = () => {
+  //   confirmEndTrip();
+  //   return true;
+  // };
 
   const loadTripData = async () => {
     // First check if there's an existing trip

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -17,6 +17,7 @@ export function OngoingTripModal({
   visible,
   currentTrip,
   activeShop,
+  allShops,
   amount,
   setAmount,
   notes,
@@ -29,9 +30,40 @@ export function OngoingTripModal({
   onContinueTrip,
   onEndTrip,
   onSave,
+  onShopChange,
+  onSaveAndNext,
 }) {
   const { theme } = useTheme();
   const styles = getStyles(theme);
+  const [currentShopIndex, setCurrentShopIndex] = useState(
+    allShops.findIndex((shop) => shop.id === activeShop.id)
+  );
+
+  const handlePrevious = () => {
+    if (currentShopIndex > 0) {
+      const newIndex = currentShopIndex - 1;
+      setCurrentShopIndex(newIndex);
+      onShopChange(allShops[newIndex]);
+    }
+  };
+
+  const handleNext = () => {
+    if (currentShopIndex < allShops.length - 1) {
+      const newIndex = currentShopIndex + 1;
+      setCurrentShopIndex(newIndex);
+      onShopChange(allShops[newIndex]);
+    }
+  };
+
+  const handleCurrentShop = () => {
+    const pendingIndex = allShops.findIndex(
+      (shop) => !currentTrip.shops.find((s) => s.id === shop.id)
+    );
+    if (pendingIndex !== -1) {
+      setCurrentShopIndex(pendingIndex);
+      onShopChange(allShops[pendingIndex]);
+    }
+  };
 
   return (
     <Modal
@@ -93,6 +125,92 @@ export function OngoingTripModal({
             </View>
             <TouchableOpacity onPress={onClose} style={styles.closeButton}>
               <Ionicons name="close" size={24} color={theme.colors.text} />
+            </TouchableOpacity>
+          </View>
+
+          <View style={styles.navigationContainer}>
+            <TouchableOpacity
+              onPress={handlePrevious}
+              disabled={currentShopIndex === 0}
+              style={[
+                styles.navButton,
+                currentShopIndex === 0 && styles.disabledButton,
+              ]}
+            >
+              <Ionicons
+                name="chevron-back"
+                size={24}
+                color={
+                  currentShopIndex === 0
+                    ? theme.colors.textSecondary
+                    : theme.colors.primary
+                }
+              />
+              <Text
+                style={[
+                  styles.navButtonText,
+                  {
+                    color:
+                      currentShopIndex === 0
+                        ? theme.colors.textSecondary
+                        : theme.colors.primary,
+                  },
+                ]}
+              >
+                Previous
+              </Text>
+            </TouchableOpacity>
+
+            {currentShopIndex !==
+              allShops.findIndex(
+                (shop) => !currentTrip.shops.find((s) => s.id === shop.id)
+              ) && (
+              <TouchableOpacity
+                onPress={handleCurrentShop}
+                style={styles.currentButton}
+              >
+                <Text
+                  style={[
+                    styles.navButtonText,
+                    { color: theme.colors.primary },
+                  ]}
+                >
+                  Current Shop
+                </Text>
+              </TouchableOpacity>
+            )}
+
+            <TouchableOpacity
+              onPress={handleNext}
+              disabled={currentShopIndex === allShops.length - 1}
+              style={[
+                styles.navButton,
+                currentShopIndex === allShops.length - 1 &&
+                  styles.disabledButton,
+              ]}
+            >
+              <Text
+                style={[
+                  styles.navButtonText,
+                  {
+                    color:
+                      currentShopIndex === allShops.length - 1
+                        ? theme.colors.textSecondary
+                        : theme.colors.primary,
+                  },
+                ]}
+              >
+                Next
+              </Text>
+              <Ionicons
+                name="chevron-forward"
+                size={24}
+                color={
+                  currentShopIndex === allShops.length - 1
+                    ? theme.colors.textSecondary
+                    : theme.colors.primary
+                }
+              />
             </TouchableOpacity>
           </View>
 
@@ -381,6 +499,28 @@ const getStyles = (theme) => ({
     fontWeight: "600",
   },
   closeButton: {
+    padding: 8,
+  },
+  navigationContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 16,
+    paddingHorizontal: 8,
+  },
+  navButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    padding: 8,
+  },
+  navButtonText: {
+    fontSize: 14,
+    fontWeight: "600",
+  },
+  disabledButton: {
+    opacity: 0.5,
+  },
+  currentButton: {
     padding: 8,
   },
 });

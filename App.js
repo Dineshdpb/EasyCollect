@@ -36,8 +36,8 @@ import { OngoingTripModal } from "./src/components/trip/OngoingTripModal";
 const Stack = createNativeStackNavigator();
 
 const AppContent = () => {
+  const { theme, isLoading } = useTheme();
   const navigationRef = useNavigationContainerRef();
-  const { theme } = useTheme();
   const [showTripModal, setShowTripModal] = useState(false);
   const [currentTrip, setCurrentTrip] = useState(null);
   const [activeShop, setActiveShop] = useState(null);
@@ -45,6 +45,7 @@ const AppContent = () => {
   const [notes, setNotes] = useState("");
   const [isClosed, setIsClosed] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState("CASH");
+  const [shops, setShops] = useState([]);
 
   useEffect(() => {
     checkOngoingTrip();
@@ -65,7 +66,23 @@ const AppContent = () => {
         if (pendingShop) {
           setActiveShop(pendingShop);
           setShowTripModal(true);
+          // Check if there's any saved data for this shop
+          const savedShopData = currentTrip.shops.find(
+            (s) => s.id === pendingShop.id
+          );
+          if (savedShopData) {
+            setAmount(savedShopData.amount?.toString() || "");
+            setNotes(savedShopData.notes || "");
+            setIsClosed(savedShopData.isClosed || false);
+            setPaymentMethod(savedShopData.paymentMethod || "CASH");
+          } else {
+            setAmount("");
+            setNotes("");
+            setIsClosed(false);
+            setPaymentMethod("CASH");
+          }
         }
+        setShops(collection.shops);
       }
     } catch (error) {
       console.error("Error checking ongoing trip:", error);
@@ -251,6 +268,10 @@ const AppContent = () => {
 
   const styles = getStyles(theme);
 
+  if (isLoading) {
+    return null; // Or return a loading component
+  }
+
   return (
     <SafeAreaProvider>
       <NavigationContainer ref={navigationRef}>
@@ -323,6 +344,7 @@ const AppContent = () => {
           visible={showTripModal}
           currentTrip={currentTrip}
           activeShop={activeShop}
+          allShops={shops}
           amount={amount}
           setAmount={setAmount}
           notes={notes}
@@ -335,6 +357,24 @@ const AppContent = () => {
           onContinueTrip={handleContinueTrip}
           onEndTrip={handleEndTrip}
           onSave={handleShopUpdate}
+          onShopChange={(shop) => {
+            setActiveShop(shop);
+            // Check if this shop has been visited in current trip
+            const visitedShop = currentTrip.shops.find((s) => s.id === shop.id);
+            if (visitedShop) {
+              // Load saved data
+              setAmount(visitedShop.amount?.toString() || "");
+              setNotes(visitedShop.notes || "");
+              setIsClosed(visitedShop.isClosed || false);
+              setPaymentMethod(visitedShop.paymentMethod || "CASH");
+            } else {
+              // Reset form for unvisited shops
+              setAmount("");
+              setNotes("");
+              setIsClosed(false);
+              setPaymentMethod("CASH");
+            }
+          }}
         />
       </NavigationContainer>
     </SafeAreaProvider>

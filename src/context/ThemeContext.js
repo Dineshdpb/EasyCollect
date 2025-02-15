@@ -6,7 +6,8 @@ import { Ionicons } from "@expo/vector-icons";
 const ThemeContext = createContext();
 
 export const ThemeProvider = ({ children }) => {
-  const [isDarkMode, setIsDarkMode] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     loadThemePreference();
@@ -15,11 +16,13 @@ export const ThemeProvider = ({ children }) => {
   const loadThemePreference = async () => {
     try {
       const savedTheme = await AsyncStorage.getItem("themeMode");
-      const isDark = savedTheme === "dark";
+      const isDark = savedTheme === null ? true : savedTheme === "dark";
       setIsDarkMode(isDark);
       setTheme(isDark);
+      setIsLoading(false);
     } catch (error) {
       console.warn("Error loading theme preference:", error);
+      setIsLoading(false);
     }
   };
 
@@ -40,6 +43,7 @@ export const ThemeProvider = ({ children }) => {
         isDarkMode,
         toggleTheme,
         theme: isDarkMode ? darkTheme : lightTheme,
+        isLoading,
       }}
     >
       {children}
