@@ -1,4 +1,15 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import {
+  View,
+  Text,
+  Modal,
+  Alert,
+  StyleSheet,
+  TextInput,
+  TouchableOpacity,
+  Switch,
+  ScrollView,
+} from "react-native";
 import {
   NavigationContainer,
   useNavigationContainerRef,
@@ -17,14 +28,23 @@ import UpdateShopScreen from "./src/screens/UpdateShopScreen";
 import EditShopScreen from "./src/screens/EditShopScreen";
 import EditTripScreen from "./src/screens/EditTripScreen";
 import { storage, TRIP_STATUS } from "./src/storage/asyncStorage";
-import { Alert } from "react-native";
 import { ThemeProvider, useTheme } from "./src/context/ThemeContext";
+import { Button } from "./src/components/common/Button";
+import { Ionicons, FontAwesome5 } from "@expo/vector-icons";
+import { OngoingTripModal } from "./src/components/trip/OngoingTripModal";
 
 const Stack = createNativeStackNavigator();
 
 const AppContent = () => {
   const navigationRef = useNavigationContainerRef();
   const { theme } = useTheme();
+  const [showTripModal, setShowTripModal] = useState(false);
+  const [currentTrip, setCurrentTrip] = useState(null);
+  const [activeShop, setActiveShop] = useState(null);
+  const [amount, setAmount] = useState("");
+  const [notes, setNotes] = useState("");
+  const [isClosed, setIsClosed] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState("CASH");
 
   useEffect(() => {
     checkOngoingTrip();
@@ -34,35 +54,202 @@ const AppContent = () => {
     try {
       const currentTrip = await storage.getCurrentTrip();
       if (currentTrip && currentTrip.status === TRIP_STATUS.IN_PROGRESS) {
-        Alert.alert(
-          "Ongoing Trip",
-          "You have an unfinished collection trip. Would you like to continue?",
-          [
-            {
-              text: "Continue",
-              onPress: () => {
-                if (navigationRef.current) {
-                  navigationRef.current.navigate("ActiveTrip", {
-                    collectionId: currentTrip.collectionId,
-                    collectionName: currentTrip.collectionName,
-                  });
-                }
-              },
-            },
-            {
-              text: "End Trip",
-              style: "destructive",
-              onPress: async () => {
-                await storage.clearCurrentTrip();
-              },
-            },
-          ]
+        setCurrentTrip(currentTrip);
+        // Find the first pending shop
+        const collection = await storage.getCollectionById(
+          currentTrip.collectionId
         );
+        const pendingShop = collection.shops.find(
+          (shop) => !currentTrip.shops.find((s) => s.id === shop.id)
+        );
+        if (pendingShop) {
+          setActiveShop(pendingShop);
+          setShowTripModal(true);
+        }
       }
     } catch (error) {
       console.error("Error checking ongoing trip:", error);
     }
   };
+
+  const handleCloseModal = () => {
+    setShowTripModal(false);
+  };
+
+  const handleContinueTrip = () => {
+    setShowTripModal(false);
+    if (navigationRef.current) {
+      navigationRef.current.navigate("ActiveTrip", {
+        collectionId: currentTrip.collectionId,
+        collectionName: currentTrip.collectionName,
+      });
+    }
+  };
+
+  const handleEndTrip = async () => {
+    try {
+      await storage.clearCurrentTrip();
+      setShowTripModal(false);
+    } catch (error) {
+      console.error("Error ending trip:", error);
+    }
+  };
+
+  const handleShopUpdate = async () => {
+    try {
+      const updateData = {
+        amount: amount ? parseFloat(amount) : 0,
+        notes: notes.trim(),
+        isClosed,
+        paymentMethod,
+        visitTime: new Date().toISOString(),
+      };
+
+      const updatedShops = [
+        ...currentTrip.shops,
+        { ...activeShop, ...updateData },
+      ];
+      const updatedTrip = {
+        ...currentTrip,
+        shops: updatedShops,
+        visitedShops: updatedShops.length,
+        totalAmount: updatedShops.reduce((sum, s) => sum + (s.amount || 0), 0),
+      };
+
+      await storage.saveCurrentTrip(updatedTrip);
+      handleContinueTrip();
+    } catch (error) {
+      console.error("Error updating shop:", error);
+    }
+  };
+
+  const getStyles = (theme) => ({
+    modalOverlay: {
+      flex: 1,
+      justifyContent: "center",
+      alignItems: "center",
+      backgroundColor: "rgba(0, 0, 0, 0.5)",
+    },
+    modalContent: {
+      width: "90%",
+      maxWidth: 500,
+      borderRadius: 12,
+      padding: 20,
+      elevation: 5,
+    },
+    modalHeader: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "flex-start",
+      marginBottom: 20,
+    },
+    headerContent: {
+      flex: 1,
+      marginRight: 16,
+    },
+    headerActions: {
+      flexDirection: "row",
+      marginTop: 4,
+      gap: 16,
+    },
+    collectionName: {
+      fontSize: 14,
+      marginTop: 4,
+    },
+    modalScroll: {
+      maxHeight: "80%",
+    },
+    closeButton: {
+      padding: 4,
+    },
+    textButtonsContainer: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      marginTop: 16,
+      paddingHorizontal: 8,
+    },
+    textButton: {
+      padding: 8,
+      flex: 1,
+      alignItems: "center",
+    },
+    textButtonLabel: {
+      fontSize: 16,
+      fontWeight: "600",
+      fontSize: 14,
+    },
+    modalTitle: {
+      fontSize: 20,
+      fontWeight: "bold",
+      marginBottom: 16,
+      textAlign: "center",
+    },
+    shopInfo: {
+      marginBottom: 20,
+    },
+    shopName: {
+      fontSize: 18,
+      fontWeight: "600",
+      marginBottom: 4,
+    },
+    shopAddress: {
+      fontSize: 14,
+    },
+    buttonContainer: {
+      gap: 12,
+    },
+    continueButton: {
+      marginTop: 8,
+    },
+    endButton: {
+      marginTop: 8,
+    },
+    inputGroup: {
+      marginBottom: 16,
+    },
+    label: {
+      fontSize: 16,
+      marginBottom: 8,
+    },
+    input: {
+      padding: 12,
+      borderRadius: 8,
+      fontSize: 16,
+    },
+    textArea: {
+      height: 80,
+      textAlignVertical: "top",
+    },
+    paymentMethodContainer: {
+      marginBottom: 16,
+    },
+    paymentButtons: {
+      flexDirection: "row",
+      gap: 12,
+      marginTop: 8,
+    },
+    selectedPayment: {
+      backgroundColor: theme.colors.primary,
+    },
+    paymentButtonText: {
+      fontSize: 16,
+      fontWeight: "600",
+    },
+    switchContainer: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+      marginBottom: 16,
+    },
+    saveButton: {
+      backgroundColor: theme.colors.success,
+    },
+    goToTripButton: {
+      backgroundColor: theme.colors.primary,
+    },
+  });
+
+  const styles = getStyles(theme);
 
   return (
     <SafeAreaProvider>
@@ -131,6 +318,24 @@ const AppContent = () => {
             options={{ title: "Edit Trip Details" }}
           />
         </Stack.Navigator>
+
+        <OngoingTripModal
+          visible={showTripModal}
+          currentTrip={currentTrip}
+          activeShop={activeShop}
+          amount={amount}
+          setAmount={setAmount}
+          notes={notes}
+          setNotes={setNotes}
+          isClosed={isClosed}
+          setIsClosed={setIsClosed}
+          paymentMethod={paymentMethod}
+          setPaymentMethod={setPaymentMethod}
+          onClose={handleCloseModal}
+          onContinueTrip={handleContinueTrip}
+          onEndTrip={handleEndTrip}
+          onSave={handleShopUpdate}
+        />
       </NavigationContainer>
     </SafeAreaProvider>
   );
