@@ -14,7 +14,7 @@ export function Button({ onPress, title, style, textStyle }) {
   };
 
   const defaultTextStyle = {
-    color: theme.colors.text,
+    color: theme.colors.buttonText,
     fontSize: 16,
     fontWeight: "600",
   };
@@ -25,3 +25,18 @@ export function Button({ onPress, title, style, textStyle }) {
     </TouchableOpacity>
   );
 }
+
+const getStyles = (theme) => ({
+  button: {
+    backgroundColor: theme.colors.primary,
+    padding: theme.spacing.md,
+    borderRadius: 8,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  text: {
+    color: theme.colors.buttonText,
+    fontSize: 16,
+    fontWeight: "600",
+  },
+});

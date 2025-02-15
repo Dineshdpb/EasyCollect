@@ -35,12 +35,13 @@ export default function CollectionsScreen({ navigation }) {
     navigation.setOptions({
       headerRight: () => (
         <View style={styles.headerRight}>
-          <Switch
-            value={isDarkMode}
-            onValueChange={toggleTheme}
-            trackColor={{ false: "#767577", true: "#81b0ff" }}
-            thumbColor={isDarkMode ? "#f5dd4b" : "#f4f3f4"}
-          />
+          <TouchableOpacity style={styles.themeButton} onPress={toggleTheme}>
+            <Ionicons
+              name={isDarkMode ? "sunny" : "moon"}
+              size={24}
+              color={theme.colors.text}
+            />
+          </TouchableOpacity>
         </View>
       ),
     });
@@ -176,5 +177,8 @@ const getStyles = (theme) => ({
     flexDirection: "row",
     alignItems: "center",
     paddingRight: 16,
+  },
+  themeButton: {
+    padding: theme.spacing.sm,
   },
 });

@@ -1,8 +1,11 @@
 import React from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
-import { theme } from "../../theme";
+import { useTheme } from "../../context/ThemeContext";
 
 export function TabBar({ tabs, activeTab, onTabPress }) {
+  const { theme } = useTheme();
+  const styles = getStyles(theme);
+
   return (
     <View style={styles.container}>
       {tabs.map((tab) => (
@@ -25,22 +28,25 @@ export function TabBar({ tabs, activeTab, onTabPress }) {
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (theme) => ({
   container: {
     flexDirection: "row",
     backgroundColor: theme.colors.surface,
+    padding: theme.spacing.xs,
     marginHorizontal: theme.spacing.md,
-    marginBottom: theme.spacing.md,
+    marginVertical: theme.spacing.sm,
     borderRadius: 8,
+    borderWidth: theme.dark ? 0 : 1,
+    borderColor: theme.colors.border,
   },
   tab: {
     flex: 1,
-    paddingVertical: theme.spacing.md,
+    padding: theme.spacing.sm,
     alignItems: "center",
+    borderRadius: 6,
   },
   activeTab: {
     backgroundColor: theme.colors.primary,
-    borderRadius: 8,
   },
   tabText: {
     color: theme.colors.textSecondary,
@@ -48,7 +54,7 @@ const styles = StyleSheet.create({
     fontWeight: "500",
   },
   activeTabText: {
-    color: theme.colors.text,
+    color: theme.colors.buttonText,
     fontWeight: "600",
   },
 });

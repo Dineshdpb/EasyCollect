@@ -30,43 +30,51 @@ export function CollectionTripsTab({ collection, navigation }) {
     );
   });
 
-  const renderTripItem = ({ item }) => (
-    <TouchableOpacity
-      style={styles.tripItem}
-      onPress={() =>
-        navigation.navigate("TripDetails", {
-          tripId: item.id,
-          collectionId: collection.id,
-        })
-      }
-    >
-      <View style={styles.tripHeader}>
-        <Text style={styles.tripDate}>
-          {new Date(item.startTime).toLocaleDateString()}
-        </Text>
-        <Text style={styles.tripDuration}>
-          {formatDuration(item.startTime, item.endTime)}
-        </Text>
-      </View>
+  const renderTripItem = ({ item }) => {
+    const tripDate = new Date(item.startTime);
+    const formattedDate = tripDate.toLocaleDateString();
+    const formattedTime = tripDate.toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
 
-      <View style={styles.tripStats}>
-        <View style={styles.statItem}>
-          <Text style={styles.statLabel}>Shops Visited</Text>
-          <Text style={styles.statValue}>
-            {item.visitedShops}/{item.totalShops}
-          </Text>
+    return (
+      <TouchableOpacity
+        style={styles.tripItem}
+        onPress={() =>
+          navigation.navigate("TripDetails", {
+            tripId: item.id,
+            collectionId: collection.id,
+          })
+        }
+      >
+        <View style={styles.tripHeader}>
+          <View>
+            <Text style={styles.tripDate}>{formattedDate}</Text>
+            <Text style={styles.tripTime}>{formattedTime}</Text>
+          </View>
+          <Text style={styles.tripAmount}>₹{item.totalAmount || 0}</Text>
         </View>
-        <View style={styles.statItem}>
-          <Text style={styles.statLabel}>Collection</Text>
-          <Text style={styles.statValue}>₹{item.totalAmount || 0}</Text>
+
+        <View style={styles.tripStats}>
+          <View style={styles.statItem}>
+            <Text style={styles.statLabel}>Shops Visited</Text>
+            <Text style={styles.statValue}>
+              {item.visitedShops}/{item.totalShops}
+            </Text>
+          </View>
+          <View style={styles.statItem}>
+            <Text style={styles.statLabel}>Collection</Text>
+            <Text style={styles.statValue}>₹{item.totalAmount || 0}</Text>
+          </View>
+          <View style={styles.statItem}>
+            <Text style={styles.statLabel}>Closed Shops</Text>
+            <Text style={styles.statValue}>{item.closedShops || 0}</Text>
+          </View>
         </View>
-        <View style={styles.statItem}>
-          <Text style={styles.statLabel}>Closed Shops</Text>
-          <Text style={styles.statValue}>{item.closedShops || 0}</Text>
-        </View>
-      </View>
-    </TouchableOpacity>
-  );
+      </TouchableOpacity>
+    );
+  };
 
   return (
     <View style={styles.container}>
@@ -77,7 +85,9 @@ export function CollectionTripsTab({ collection, navigation }) {
       />
 
       <FlatList
-        data={filteredTrips}
+        data={(collection?.trips || []).sort(
+          (a, b) => new Date(b.startTime) - new Date(a.startTime)
+        )}
         renderItem={renderTripItem}
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.listContainer}
@@ -118,9 +128,15 @@ const getStyles = (theme) => ({
     fontSize: 16,
     fontWeight: "600",
   },
-  tripDuration: {
+  tripTime: {
     color: theme.colors.textSecondary,
-    fontSize: 14,
+    fontSize: 12,
+    marginTop: theme.spacing.xs,
+  },
+  tripAmount: {
+    color: theme.colors.success,
+    fontSize: 16,
+    fontWeight: "600",
   },
   tripStats: {
     flexDirection: "row",

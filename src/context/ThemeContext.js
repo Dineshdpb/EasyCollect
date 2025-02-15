@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { setTheme, darkTheme, lightTheme } from "../theme";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { Ionicons } from "@expo/vector-icons";
 
 const ThemeContext = createContext();
 
@@ -18,18 +19,18 @@ export const ThemeProvider = ({ children }) => {
       setIsDarkMode(isDark);
       setTheme(isDark);
     } catch (error) {
-      console.error("Error loading theme preference:", error);
+      console.warn("Error loading theme preference:", error);
     }
   };
 
   const toggleTheme = async () => {
     try {
       const newMode = !isDarkMode;
+      await AsyncStorage.setItem("themeMode", newMode ? "dark" : "light");
       setIsDarkMode(newMode);
       setTheme(newMode);
-      await AsyncStorage.setItem("themeMode", newMode ? "dark" : "light");
     } catch (error) {
-      console.error("Error saving theme preference:", error);
+      console.warn("Error saving theme preference:", error);
     }
   };
 

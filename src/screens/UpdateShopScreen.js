@@ -11,6 +11,7 @@ import {
 import { Button } from "../components/common/Button";
 import { useTheme } from "../context/ThemeContext";
 import { storage } from "../storage/asyncStorage";
+import { Ionicons, FontAwesome5 } from "@expo/vector-icons";
 
 export default function UpdateShopScreen({ route, navigation }) {
   const { theme } = useTheme();
@@ -123,6 +124,15 @@ export default function UpdateShopScreen({ route, navigation }) {
             ]}
             onPress={() => setPaymentMethod("CASH")}
           >
+            <Ionicons
+              name="cash-outline"
+              size={24}
+              color={
+                paymentMethod === "CASH"
+                  ? theme.colors.text
+                  : theme.colors.textSecondary
+              }
+            />
             <Text style={styles.paymentButtonText}>CASH</Text>
           </TouchableOpacity>
           <TouchableOpacity
@@ -132,6 +142,15 @@ export default function UpdateShopScreen({ route, navigation }) {
             ]}
             onPress={() => setPaymentMethod("GPAY")}
           >
+            <FontAwesome5
+              name="google-pay"
+              size={24}
+              color={
+                paymentMethod === "GPAY"
+                  ? theme.colors.text
+                  : theme.colors.textSecondary
+              }
+            />
             <Text style={styles.paymentButtonText}>GPAY</Text>
           </TouchableOpacity>
         </View>
@@ -249,6 +268,9 @@ const getStyles = (theme) => ({
     borderRadius: 8,
     backgroundColor: theme.colors.surface,
     alignItems: "center",
+    flexDirection: "row",
+    justifyContent: "center",
+    gap: theme.spacing.sm,
   },
   selectedPayment: {
     backgroundColor: theme.colors.primary,

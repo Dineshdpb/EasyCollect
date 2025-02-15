@@ -83,7 +83,7 @@ const AppContent = () => {
           <Stack.Screen
             name="Collections"
             component={CollectionsScreen}
-            options={{ title: "My Collections" }}
+            options={{ title: "Easy Collect" }}
           />
           <Stack.Screen
             name="AddCollection"

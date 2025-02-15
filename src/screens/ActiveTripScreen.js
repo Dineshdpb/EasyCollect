@@ -12,7 +12,7 @@ import { Button } from "../components/common/Button";
 import { SearchBar } from "../components/common/SearchBar";
 import { storage, TRIP_STATUS } from "../storage/asyncStorage";
 import { useTheme } from "../context/ThemeContext";
-import { Ionicons } from "@expo/vector-icons";
+import { Ionicons, FontAwesome5 } from "@expo/vector-icons";
 
 export default function ActiveTripScreen({ route, navigation }) {
   const { collectionId, collectionName } = route.params;
@@ -257,7 +257,31 @@ export default function ActiveTripScreen({ route, navigation }) {
           </View>
           <View style={styles.paymentMethodContainer}>
             <Text style={styles.paymentMethod}>
-              {item.paymentMethod || "CASH"}
+              {item.paymentMethod === "GPAY" ? (
+                <FontAwesome5
+                  name="google-pay"
+                  size={24}
+                  color={
+                    item.paymentMethod === "GPAY"
+                      ? theme.colors.text
+                      : theme.colors.textSecondary
+                  }
+                />
+              ) : (
+                <>
+                  <Ionicons
+                    name={
+                      item.paymentMethod === "GPAY"
+                        ? "phone-portrait-outline"
+                        : "cash-outline"
+                    }
+                    size={16}
+                    color={theme.colors.textSecondary}
+                    style={{ marginRight: theme.spacing.xs }}
+                  />
+                  {" CASH"}
+                </>
+              )}
             </Text>
             <TouchableOpacity
               style={styles.editButton}

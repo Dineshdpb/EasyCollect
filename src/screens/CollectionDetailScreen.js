@@ -30,6 +30,23 @@ export default function CollectionDetailScreen({ route, navigation }) {
     loadCollection();
   }, []);
 
+  useEffect(() => {
+    navigation.setOptions({
+      headerRight: () => (
+        <TouchableOpacity
+          style={styles.headerButton}
+          onPress={showCollectionOptions}
+        >
+          <Ionicons
+            name="ellipsis-vertical"
+            size={24}
+            color={theme.colors.text}
+          />
+        </TouchableOpacity>
+      ),
+    });
+  }, []);
+
   const loadCollection = async () => {
     try {
       const collectionData = await storage.getCollectionById(collectionId);
@@ -49,6 +66,7 @@ export default function CollectionDetailScreen({ route, navigation }) {
     Alert.alert("Collection Options", "Choose an action", [
       {
         text: "Edit Name",
+        icon: "pencil",
         onPress: () => {
           setNewCollectionName(collection?.name || "");
           setIsEditModalVisible(true);
@@ -56,6 +74,7 @@ export default function CollectionDetailScreen({ route, navigation }) {
       },
       {
         text: "Delete Collection",
+        icon: "trash",
         onPress: handleDeleteCollection,
         style: "destructive",
       },
@@ -238,5 +257,8 @@ const getStyles = (theme) => ({
   },
   startButton: {
     margin: theme.spacing.md,
+  },
+  headerButton: {
+    padding: theme.spacing.sm,
   },
 });

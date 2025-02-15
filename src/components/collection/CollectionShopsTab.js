@@ -128,7 +128,7 @@ export function CollectionShopsTab({
             onPress={handleViewActiveTrip}
             style={[
               styles.startButton,
-              { backgroundColor: theme.colors.warning },
+              { backgroundColor: theme.colors.primary },
             ]}
           />
         ) : (
