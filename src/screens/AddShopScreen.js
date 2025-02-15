@@ -1,16 +1,26 @@
 import React, { useState } from "react";
-import { View, TextInput, StyleSheet, Alert, ScrollView } from "react-native";
+import {
+  View,
+  Text,
+  TextInput,
+  StyleSheet,
+  Alert,
+  ScrollView,
+} from "react-native";
 import { Button } from "../components/common/Button";
 import { storage } from "../storage/asyncStorage";
-import { theme } from "../theme";
+import { useTheme } from "../context/ThemeContext";
 
 export default function AddShopScreen({ route, navigation }) {
+  const { theme } = useTheme();
   const { collectionId, tripId, onAdd } = route.params;
   const [shopData, setShopData] = useState({
     name: "",
     address: "",
     notes: "",
   });
+
+  const styles = getStyles(theme);
 
   const handleSave = async () => {
     try {
@@ -119,7 +129,7 @@ export default function AddShopScreen({ route, navigation }) {
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (theme) => ({
   container: {
     flex: 1,
     backgroundColor: theme.colors.background,

@@ -1,0 +1,232 @@
+EASY COLLECT - CODE DOCUMENTATION
+================================
+
+1. PROJECT OVERVIEW
+------------------
+Name: Easy Collect
+Type: React Native (Expo) Application
+Purpose: Shop payment collection management with offline support
+Primary Features: Collections management, shop tracking, payment recording
+
+2. FILE STRUCTURE
+----------------
+src/
+├── components/
+│   ├── common/          # Reusable components (Button, SearchBar, etc.)
+│   ├── collection/      # Collection-specific components
+│   └── trip/           # Trip-related components
+├── screens/            # Main app screens
+├── context/           # React Context (Theme)
+├── storage/          # AsyncStorage logic
+└── theme/           # Theme configuration
+
+3. MAIN SCREENS
+--------------
+
+A. CollectionsScreen (Main Screen)
+   File: src/screens/CollectionsScreen.js
+   Purpose: Entry point showing all collections
+   Features:
+   - Collection list with stats
+   - Theme toggle (light/dark)
+   - Search functionality
+   - Add new collection button
+   Key Components:
+   - SearchBar
+   - FlatList for collections
+   - ThemeToggle button
+
+B. AddShopScreen
+   File: src/screens/AddShopScreen.js
+   Purpose: Add new shops to collections
+   Features:
+   - Shop name/address input
+   - Duplicate detection
+   - Optional notes
+   Data Structure:
+   {
+     name: string,
+     address: string,
+     notes: string,
+     createdAt: string,
+     lastVisited: null,
+     lastAmount: 0,
+     previousAmounts: []
+   }
+
+C. UpdateShopScreen
+   File: src/screens/UpdateShopScreen.js
+   Purpose: Record shop visits during trips
+   Features:
+   - Tabbed interface (Update/History)
+   - Payment collection
+   - Payment method selection
+   - Visit history
+   Key Components:
+   - TabBar
+   - Payment method buttons
+   - History list
+
+D. ActiveTripScreen
+   File: src/screens/ActiveTripScreen.js
+   Purpose: Manage ongoing collection trip
+   Features:
+   - Shop list with visit status
+   - Amount collection
+   - Payment tracking
+   - Search functionality
+   Data Flow:
+   1. Load/create trip
+   2. Update shop visits
+   3. Track total collection
+   4. Handle trip completion
+
+4. DATA STRUCTURES
+-----------------
+
+Collection:
+{
+    id: string,
+    name: string,
+    shops: Shop[],
+    trips: Trip[],
+    createdAt: string
+}
+
+Shop:
+{
+    id: string,
+    name: string,
+    address: string,
+    notes: string,
+    lastVisited: string | null,
+    lastAmount: number,
+    previousAmounts: Payment[]
+}
+
+Trip:
+{
+    id: string,
+    collectionId: string,
+    startTime: string,
+    endTime: string,
+    status: "IN_PROGRESS" | "COMPLETED",
+    totalShops: number,
+    visitedShops: number,
+    totalAmount: number,
+    shops: ShopVisit[]
+}
+
+5. THEME SYSTEM
+--------------
+Location: src/context/ThemeContext.js
+Storage: AsyncStorage ("themeMode")
+
+Light Theme Colors:
+{
+    primary: "#007AFF",
+    background: "#F2F2F7",
+    surface: "#FFFFFF",
+    text: "#000000",
+    textSecondary: "#666666",
+    error: "#FF3B30",
+    success: "#34C759",
+    warning: "#FFCC00",
+    buttonText: "#FFFFFF",
+    border: "#E5E5EA"
+}
+
+Dark Theme Colors:
+{
+    primary: "#0A84FF",
+    background: "#000000",
+    surface: "#1C1C1E",
+    text: "#FFFFFF",
+    textSecondary: "#8E8E93",
+    error: "#FF453A",
+    success: "#32D74B",
+    warning: "#FFD60A",
+    buttonText: "#FFFFFF",
+    border: "#38383A"
+}
+
+6. ICON USAGE
+------------
+Libraries: 
+- @expo/vector-icons/Ionicons
+- @expo/vector-icons/FontAwesome5
+
+Common Icons:
+- Cash Payment: <Ionicons name="cash-outline" size={24} />
+- GPay Payment: <FontAwesome5 name="google-pay" size={24} />
+- Edit: <Ionicons name="pencil" size={20} />
+- Theme Toggle: <Ionicons name={isDarkMode ? "sunny" : "moon"} size={24} />
+
+7. COMMON COMPONENTS
+-------------------
+
+Button:
+File: src/components/common/Button.js
+Usage: 
+<Button 
+    title="Save"
+    onPress={handleSave}
+    style={styles.customStyle}
+/>
+
+TabBar:
+File: src/components/common/TabBar.js
+Usage:
+<TabBar
+    tabs={[
+        { key: "update", title: "Update" },
+        { key: "history", title: "History" }
+    ]}
+    activeTab={activeTab}
+    onTabPress={setActiveTab}
+/>
+
+8. ERROR HANDLING
+----------------
+- Input validation
+- Storage errors
+- Navigation state
+- Data consistency
+- User feedback through Alert component
+
+9. DEVELOPMENT GUIDELINES
+------------------------
+1. Always use theme context for styling
+2. Implement proper error handling
+3. Maintain consistent data structure
+4. Follow existing component patterns
+5. Document code changes
+6. Use proper TypeScript types where available
+7. Maintain offline-first approach
+8. Follow naming conventions
+
+10. FUTURE ENHANCEMENTS
+----------------------
+1. Data export functionality
+2. Cloud backup integration
+3. Multi-user support
+4. Advanced analytics
+5. Route optimization
+6. Enhanced offline support
+7. Push notifications
+8. Payment receipt generation
+
+11. TESTING
+-----------
+Currently manual testing
+Future considerations:
+- Unit tests for utilities
+- Component testing
+- Integration testing
+- E2E testing with Detox
+
+12. DEPLOYMENT
+-------------
+Using Expo EAS Build
+Configuration in eas.json
+Build commands in package.json 
