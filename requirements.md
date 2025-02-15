@@ -1,97 +1,98 @@
-# Collection App Requirements Document
+# Collection Management App Requirements
 
-## Project Overview
+## Core Features
 
-An app designed for individuals who visit multiple shops weekly to collect payments. Built with React Native Expo, focusing on local data storage and efficient collection tracking.
+### Collections Management
 
-## Phase 1 Features
+- [x] Create new collections
+- [x] View list of collections
+- [x] Edit collection names
+- [x] Delete collections
+- [x] Search collections by name
+- [x] View collection details with shops and trips
 
-### 1. Data Management (AsyncStorage)
+### Shop Management
 
-- Store and retrieve trip and shop data locally
-- Save current trip state for resume functionality
-- Maintain completed trips history
-- Store historical notes and amounts for each shop
+- [x] Add shops to collections
+- [x] Edit shop details
+- [x] Delete shops
+- [x] Search shops by name or address
+- [x] View shop history and details
+- [x] Track shop visit history
 
-### 2. Trip Management
+### Collection Trips
 
-- Home screen with trips list (e.g., "Sunday Collection")
-- CRUD operations for trips
-- Shop management within trips
-- Drag-and-drop shop reordering (Expo dependent)
-- Edit capability for amounts and notes in completed and running trips
+- [x] Start collection trips
+- [x] Record shop visits during trips
+- [x] Track payment amounts
+- [x] Mark shops as closed
+- [x] Add notes to visits
+- [x] Edit visit details during active trip
+- [x] End and summarize trips
+- [x] View trip history and details
 
-### 3. Shop Visit Tracking
+### Payment Features
 
-- Sequential shop visits within active trips
-- Per shop actions:
-  - Enter collected amount (with toggle visibility option)
-  - Mark shop as closed
-  - Add/edit notes
-- View historical notes and amounts
-- Automatic progression to next shop
-- AsyncStorage integration for data persistence
+- [x] Record payment amounts
+- [x] Toggle payment visibility
+- [x] Support multiple payment methods (CASH/GPAY)
+- [x] Track payment history per shop
+- [x] View total collections per trip
 
-### 4. Shop Input Modal
+### History & Records
 
-Features:
+- [x] View shop visit history
+- [x] Track payment history
+- [x] View trip summaries
+- [x] Show collection statistics
+- [x] Display last visit details
 
-- Current shop name display
-- Amount input field (toggleable visibility like password field)
-- Notes input field
-- Historical data display (previous notes and amounts)
-- Action buttons:
-  - Submit Amount
-  - Shop Closed
-  - Toggle Amount Visibility
-- Auto-advance to next shop
+### UI/UX Features
 
-### 5. Persistent Notifications
+- [x] Dark/Light theme support
+- [x] Responsive design
+- [x] Search functionality
+- [x] Intuitive navigation
+- [x] Tab-based interfaces
+- [x] Confirmation dialogs
+- [x] Loading states
+- [x] Error handling
 
-Uber-style persistent UI:
+### Data Management
 
-- Current shop display
-- Navigation controls (Next/Previous)
-- Active until trip completion
-- Quick access to edit amount and notes
+- [x] Local storage for all data
+- [x] Persistent theme preference
+- [x] Data validation
+- [x] Error handling
+- [x] Data backup/restore (AsyncStorage)
 
-## User Flow
+## Additional Features
 
-### Home Screen
+- [x] Shop visit statistics
+- [x] Collection trip summaries
+- [x] Payment method tracking
+- [x] Notes for shops and visits
+- [x] Active trip management
+- [x] Edit capabilities during active trips
 
-- Trip list view
-- Trip CRUD operations
+## Technical Requirements
 
-### Trip Management
+- [x] React Native implementation
+- [x] AsyncStorage for data persistence
+- [x] Theme context for styling
+- [x] Navigation stack
+- [x] Component reusability
+- [x] Proper error handling
+- [x] Code organization
+- [x] Performance optimization
 
-- Shop CRUD operations
-- Shop reordering via drag and drop
-- Trip initiation
-- Historical data access
+## Future Enhancements (Potential)
 
-### Active Trip
-
-- Modal-based input
-- Amount entry with visibility toggle
-- Notes management
-- Shop closure
-- Automatic progression
-- Persistent navigation controls
-- Edit capability for amounts and notes
-
-### Trip Completion
-
-- Data persistence
-- Return to home screen
-- Maintain editability of completed trip data
-
-## UI/UX Guidelines
-
-Following Uber's design principles:
-
-- Dark theme with high contrast
-- Minimalist, intuitive layout
-- Bottom-aligned controls
-- Clear iconography
-- Smooth animations and transitions
-- Drag and drop interactions
+- [ ] Data export functionality
+- [ ] Cloud backup
+- [ ] Multiple users support
+- [ ] Advanced analytics
+- [ ] Route optimization
+- [ ] Offline support
+- [ ] Push notifications
+- [ ] Payment receipt generation
