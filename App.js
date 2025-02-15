@@ -18,11 +18,13 @@ import EditShopScreen from "./src/screens/EditShopScreen";
 import EditTripScreen from "./src/screens/EditTripScreen";
 import { storage, TRIP_STATUS } from "./src/storage/asyncStorage";
 import { Alert } from "react-native";
+import { ThemeProvider, useTheme } from "./src/context/ThemeContext";
 
 const Stack = createNativeStackNavigator();
 
-export default function App() {
+const AppContent = () => {
   const navigationRef = useNavigationContainerRef();
+  const { theme } = useTheme();
 
   useEffect(() => {
     checkOngoingTrip();
@@ -65,14 +67,14 @@ export default function App() {
   return (
     <SafeAreaProvider>
       <NavigationContainer ref={navigationRef}>
-        <StatusBar style="light" />
+        <StatusBar style={theme.dark ? "light" : "dark"} />
         <Stack.Navigator
           initialRouteName="Collections"
           screenOptions={{
             headerStyle: {
-              backgroundColor: "#1a1a1a",
+              backgroundColor: theme.colors.surface,
             },
-            headerTintColor: "#fff",
+            headerTintColor: theme.colors.text,
             headerTitleStyle: {
               fontWeight: "bold",
             },
@@ -131,5 +133,13 @@ export default function App() {
         </Stack.Navigator>
       </NavigationContainer>
     </SafeAreaProvider>
+  );
+};
+
+export default function App() {
+  return (
+    <ThemeProvider>
+      <AppContent />
+    </ThemeProvider>
   );
 }

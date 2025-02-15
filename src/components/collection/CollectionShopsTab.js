@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -9,9 +9,21 @@ import {
   ActionSheetIOS,
 } from "react-native";
 import { Button } from "../common/Button";
-import { theme } from "../../theme";
+import { useTheme } from "../../context/ThemeContext";
+import { TRIP_STATUS } from "../../storage/asyncStorage";
+import { SearchBar } from "../common/SearchBar";
 
-export function CollectionShopsTab({ collection, onRefresh, navigation }) {
+export function CollectionShopsTab({
+  collection,
+  onRefresh,
+  navigation,
+  currentTrip,
+  handleViewActiveTrip,
+}) {
+  const [searchQuery, setSearchQuery] = useState("");
+  const { theme } = useTheme();
+  const styles = getStyles(theme);
+
   const handleAddShop = () => {
     navigation.navigate("AddShop", {
       collectionId: collection.id,
@@ -33,6 +45,12 @@ export function CollectionShopsTab({ collection, onRefresh, navigation }) {
       collectionName: collection.name,
     });
   };
+
+  const filteredShops = (collection?.shops || []).filter(
+    (shop) =>
+      shop.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      shop.address.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   const renderShopItem = ({ item }) => (
     <TouchableOpacity
@@ -104,15 +122,32 @@ export function CollectionShopsTab({ collection, onRefresh, navigation }) {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Button
-          title="Start Collection Trip"
-          onPress={handleStartTrip}
-          style={styles.startButton}
-        />
+        {currentTrip?.status === TRIP_STATUS.IN_PROGRESS ? (
+          <Button
+            title="View Running Trip"
+            onPress={handleViewActiveTrip}
+            style={[
+              styles.startButton,
+              { backgroundColor: theme.colors.warning },
+            ]}
+          />
+        ) : (
+          <Button
+            title="Start Collection Trip"
+            onPress={handleStartTrip}
+            style={styles.startButton}
+          />
+        )}
       </View>
 
+      <SearchBar
+        value={searchQuery}
+        onChangeText={setSearchQuery}
+        placeholder="Search shops..."
+      />
+
       <FlatList
-        data={collection?.shops || []}
+        data={filteredShops}
         renderItem={renderShopItem}
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.listContainer}
@@ -137,7 +172,7 @@ export function CollectionShopsTab({ collection, onRefresh, navigation }) {
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (theme) => ({
   container: {
     flex: 1,
   },

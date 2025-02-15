@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, StyleSheet, ScrollView, FlatList } from "react-native";
 import { storage } from "../storage/asyncStorage";
-import { theme } from "../theme";
+import { useTheme } from "../context/ThemeContext";
 
 export default function ShopDetailsScreen({ route, navigation }) {
+  const { theme } = useTheme();
   const { shopId, collectionId } = route.params;
   const [shop, setShop] = useState(null);
   const [visitHistory, setVisitHistory] = useState([]);
@@ -56,6 +57,8 @@ export default function ShopDetailsScreen({ route, navigation }) {
 
   if (!shop) return null;
 
+  const styles = getStyles(theme);
+
   return (
     <ScrollView style={styles.container}>
       <View style={styles.header}>
@@ -98,7 +101,7 @@ export default function ShopDetailsScreen({ route, navigation }) {
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (theme) => ({
   container: {
     flex: 1,
     backgroundColor: theme.colors.background,

@@ -9,10 +9,11 @@ import {
   ActionSheetIOS,
 } from "react-native";
 import { storage } from "../storage/asyncStorage";
-import { theme } from "../theme";
+import { useTheme } from "../context/ThemeContext";
 import { Ionicons } from "@expo/vector-icons";
 
 export default function TripDetailsScreen({ route, navigation }) {
+  const { theme } = useTheme();
   const { tripId, collectionId } = route.params;
   const [trip, setTrip] = useState(null);
   const [collection, setCollection] = useState(null);
@@ -169,9 +170,22 @@ export default function TripDetailsScreen({ route, navigation }) {
           {item.isClosed && <Text style={styles.closedTag}>CLOSED</Text>}
         </View>
         {item.notes && <Text style={styles.notes}>{item.notes}</Text>}
+        {item.previousAmounts && (
+          <View style={styles.historyContainer}>
+            <Text style={styles.historyTitle}>Previous Collections:</Text>
+            {item.previousAmounts.map((prev, index) => (
+              <Text key={index} style={styles.historyItem}>
+                {new Date(prev.date).toLocaleDateString()}: ₹{prev.amount}
+                {prev.notes && ` - ${prev.notes}`}
+              </Text>
+            ))}
+          </View>
+        )}
       </View>
     </TouchableOpacity>
   );
+
+  const styles = getStyles(theme);
 
   if (!trip) return null;
 
@@ -215,7 +229,7 @@ export default function TripDetailsScreen({ route, navigation }) {
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (theme) => ({
   container: {
     flex: 1,
     backgroundColor: theme.colors.background,
@@ -264,9 +278,6 @@ const styles = StyleSheet.create({
     color: theme.colors.text,
     fontSize: 18,
     fontWeight: "bold",
-    padding: theme.spacing.md,
-  },
-  listContainer: {
     padding: theme.spacing.md,
   },
   shopItem: {
@@ -320,5 +331,25 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontStyle: "italic",
     marginTop: theme.spacing.xs,
+  },
+  historyContainer: {
+    marginTop: theme.spacing.sm,
+    paddingTop: theme.spacing.sm,
+    borderTopWidth: 1,
+    borderTopColor: theme.colors.background,
+  },
+  historyTitle: {
+    color: theme.colors.text,
+    fontSize: 16,
+    fontWeight: "bold",
+    marginBottom: theme.spacing.xs,
+  },
+  historyItem: {
+    color: theme.colors.textSecondary,
+    fontSize: 14,
+    marginBottom: theme.spacing.xs,
+  },
+  listContainer: {
+    padding: theme.spacing.md,
   },
 });

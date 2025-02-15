@@ -2,10 +2,12 @@ import React, { useState } from "react";
 import { View, TextInput, StyleSheet, Alert } from "react-native";
 import { Button } from "../components/common/Button";
 import { storage } from "../storage/asyncStorage";
-import { theme } from "../theme";
+import { useTheme } from "../context/ThemeContext";
 
-export default function AddCollectionScreen({ navigation }) {
+export default function AddCollectionScreen({ route, navigation }) {
   const [name, setName] = useState("");
+  const { theme } = useTheme();
+  const { onAdd } = route.params;
 
   const handleSave = async () => {
     if (!name.trim()) {
@@ -35,14 +37,14 @@ export default function AddCollectionScreen({ navigation }) {
       }
 
       await storage.saveCollections([...collections, newCollection]);
-      Alert.alert("Success", "Collection created successfully", [
-        { text: "OK", onPress: () => navigation.goBack() },
-      ]);
+      navigation.goBack();
     } catch (error) {
       Alert.alert("Error", "Failed to create collection");
       console.error("Error creating collection:", error);
     }
   };
+
+  const styles = getStyles(theme);
 
   return (
     <View style={styles.container}>
@@ -50,26 +52,22 @@ export default function AddCollectionScreen({ navigation }) {
         style={styles.input}
         value={name}
         onChangeText={setName}
-        placeholder="Enter Collection Name"
+        placeholder="Collection Name"
         placeholderTextColor={theme.colors.textSecondary}
         autoFocus
         returnKeyType="done"
         onSubmitEditing={handleSave}
       />
-      <Button
-        title="Create Collection"
-        onPress={handleSave}
-        style={styles.saveButton}
-      />
+      <Button title="Save" onPress={handleSave} style={styles.saveButton} />
     </View>
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (theme) => ({
   container: {
     flex: 1,
-    backgroundColor: theme.colors.background,
     padding: theme.spacing.md,
+    backgroundColor: theme.colors.background,
   },
   input: {
     backgroundColor: theme.colors.surface,

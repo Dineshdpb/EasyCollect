@@ -2,9 +2,10 @@ import React, { useState } from "react";
 import { View, StyleSheet, ScrollView, TextInput, Alert } from "react-native";
 import { Button } from "../components/common/Button";
 import { storage } from "../storage/asyncStorage";
-import { theme } from "../theme";
+import { useTheme } from "../context/ThemeContext";
 
 export default function EditTripScreen({ route, navigation }) {
+  const { theme } = useTheme();
   const { trip, collectionId, onUpdate } = route.params;
   const [notes, setNotes] = useState(trip?.notes || "");
 
@@ -26,6 +27,8 @@ export default function EditTripScreen({ route, navigation }) {
       Alert.alert("Error", "Failed to update trip details");
     }
   };
+
+  const styles = getStyles(theme);
 
   return (
     <ScrollView style={styles.container}>
@@ -50,7 +53,7 @@ export default function EditTripScreen({ route, navigation }) {
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (theme) => ({
   container: {
     flex: 1,
     backgroundColor: theme.colors.background,

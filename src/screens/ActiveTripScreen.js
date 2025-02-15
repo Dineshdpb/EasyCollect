@@ -9,14 +9,19 @@ import {
   TouchableOpacity,
 } from "react-native";
 import { Button } from "../components/common/Button";
+import { SearchBar } from "../components/common/SearchBar";
 import { storage, TRIP_STATUS } from "../storage/asyncStorage";
-import { theme } from "../theme";
+import { useTheme } from "../context/ThemeContext";
+import { Ionicons } from "@expo/vector-icons";
 
 export default function ActiveTripScreen({ route, navigation }) {
   const { collectionId, collectionName } = route.params;
   const [shops, setShops] = useState([]);
   const [currentTrip, setCurrentTrip] = useState(null);
   const [startTime] = useState(new Date().toISOString());
+  const [visibleAmounts, setVisibleAmounts] = useState({});
+  const [searchQuery, setSearchQuery] = useState("");
+  const { theme } = useTheme();
 
   useEffect(() => {
     loadTripData();
@@ -33,6 +38,9 @@ export default function ActiveTripScreen({ route, navigation }) {
   };
 
   const loadTripData = async () => {
+    // First check if there's an existing trip
+    const existingTrip = await storage.getCurrentTrip();
+
     const collection = await storage.getCollectionById(collectionId);
     if (!collection?.shops?.length) {
       Alert.alert("Error", "No shops found in this collection");
@@ -40,36 +48,71 @@ export default function ActiveTripScreen({ route, navigation }) {
       return;
     }
 
-    // Initialize shops with pending status
-    const initialShops = collection.shops.map((shop) => ({
-      ...shop,
-      status: "PENDING",
-      amount: 0,
-      isClosed: false,
-      notes: "",
-      visitTime: null,
-    }));
-    setShops(initialShops);
+    let initialShops;
 
-    // Create new trip
-    const newTrip = {
-      id: Date.now().toString(),
-      collectionId,
-      startTime,
-      status: TRIP_STATUS.IN_PROGRESS,
-      totalShops: initialShops.length,
-      visitedShops: 0,
-      totalAmount: 0,
-      shops: [],
-    };
-    setCurrentTrip(newTrip);
-    await storage.saveCurrentTrip(newTrip);
+    if (existingTrip && existingTrip.collectionId === collectionId) {
+      // Merge existing trip data with collection shops
+      initialShops = collection.shops.map((shop) => {
+        const existingShopData = existingTrip.shops.find(
+          (s) => s.id === shop.id
+        );
+        if (existingShopData) {
+          return {
+            ...shop,
+            ...existingShopData,
+            status: "VISITED",
+          };
+        }
+        return {
+          ...shop,
+          status: "PENDING",
+          amount: 0,
+          isClosed: false,
+          notes: "",
+          visitTime: null,
+        };
+      });
+      setCurrentTrip(existingTrip);
+    } else {
+      // Initialize new trip with pending shops
+      initialShops = collection.shops.map((shop) => ({
+        ...shop,
+        status: "PENDING",
+        amount: 0,
+        isClosed: false,
+        notes: "",
+        visitTime: null,
+      }));
+
+      // Create new trip
+      const newTrip = {
+        id: Date.now().toString(),
+        collectionId,
+        startTime,
+        status: TRIP_STATUS.IN_PROGRESS,
+        totalShops: initialShops.length,
+        visitedShops: 0,
+        totalAmount: 0,
+        shops: [],
+      };
+      setCurrentTrip(newTrip);
+      await storage.saveCurrentTrip(newTrip);
+    }
+
+    setShops(initialShops);
   };
 
   const handleUpdateShop = (shop) => {
     navigation.navigate("UpdateShop", {
       shopId: shop.id,
       shopName: shop.name,
+      initialData: {
+        amount: shop.amount,
+        notes: shop.notes,
+        isClosed: shop.isClosed,
+        paymentMethod: shop.paymentMethod,
+        previousAmounts: shop.previousAmounts || [],
+      },
       onUpdate: (updatedData) => handleShopUpdated(shop.id, updatedData),
     });
   };
@@ -142,10 +185,40 @@ export default function ActiveTripScreen({ route, navigation }) {
     }
   };
 
+  const toggleAmountVisibility = (shopId) => {
+    setVisibleAmounts((prev) => ({
+      ...prev,
+      [shopId]: !prev[shopId],
+    }));
+  };
+
+  const handleEditShop = (shop) => {
+    navigation.navigate("UpdateShop", {
+      shopId: shop.id,
+      shopName: shop.name,
+      initialData: {
+        amount: shop.amount,
+        notes: shop.notes,
+        isClosed: shop.isClosed,
+        paymentMethod: shop.paymentMethod,
+        previousAmounts: shop.previousAmounts || [],
+      },
+      onUpdate: (updatedData) => handleShopUpdated(shop.id, updatedData),
+    });
+  };
+
+  const filteredShops = shops.filter(
+    (shop) =>
+      shop.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      shop.address.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   const renderShopItem = ({ item }) => (
     <TouchableOpacity
-      style={[styles.shopItem, item.status === "VISITED" && styles.visitedShop]}
-      onPress={() => handleUpdateShop(item)}
+      style={styles.shopItem}
+      onPress={() =>
+        item.status === "PENDING" ? handleUpdateShop(item) : null
+      }
       disabled={item.status === "VISITED"}
     >
       <View style={styles.shopHeader}>
@@ -166,13 +239,40 @@ export default function ActiveTripScreen({ route, navigation }) {
       </View>
       <Text style={styles.shopAddress}>{item.address}</Text>
       {item.status === "VISITED" && (
-        <View style={styles.visitDetails}>
-          <Text style={styles.amount}>₹{item.amount || 0}</Text>
-          {item.isClosed && <Text style={styles.closedTag}>CLOSED</Text>}
-        </View>
+        <>
+          <View style={styles.visitDetails}>
+            <View style={styles.amountContainer}>
+              <Text style={styles.amount}>
+                {visibleAmounts[item.id] ? `₹${item.amount || 0}` : "•••••"}
+              </Text>
+              <TouchableOpacity onPress={() => toggleAmountVisibility(item.id)}>
+                <Ionicons
+                  name={visibleAmounts[item.id] ? "eye-off" : "eye"}
+                  size={24}
+                  color={theme.colors.textSecondary}
+                />
+              </TouchableOpacity>
+            </View>
+            {item.isClosed && <Text style={styles.closedTag}>CLOSED</Text>}
+          </View>
+          <View style={styles.paymentMethodContainer}>
+            <Text style={styles.paymentMethod}>
+              {item.paymentMethod || "CASH"}
+            </Text>
+            <TouchableOpacity
+              style={styles.editButton}
+              onPress={() => handleEditShop(item)}
+            >
+              <Ionicons name="pencil" size={20} color={theme.colors.primary} />
+            </TouchableOpacity>
+          </View>
+          {item.notes && <Text style={styles.notes}>{item.notes}</Text>}
+        </>
       )}
     </TouchableOpacity>
   );
+
+  const styles = getStyles(theme);
 
   return (
     <View style={styles.container}>
@@ -189,8 +289,14 @@ export default function ActiveTripScreen({ route, navigation }) {
         )}
       </View>
 
+      <SearchBar
+        value={searchQuery}
+        onChangeText={setSearchQuery}
+        placeholder="Search shops..."
+      />
+
       <FlatList
-        data={shops}
+        data={filteredShops}
         renderItem={renderShopItem}
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.listContainer}
@@ -205,7 +311,7 @@ export default function ActiveTripScreen({ route, navigation }) {
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (theme) => ({
   container: {
     flex: 1,
     backgroundColor: theme.colors.background,
@@ -272,6 +378,11 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: theme.colors.background,
   },
+  amountContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
   amount: {
     color: theme.colors.success,
     fontSize: 16,
@@ -285,5 +396,24 @@ const styles = StyleSheet.create({
   endButton: {
     margin: theme.spacing.md,
     backgroundColor: theme.colors.error,
+  },
+  paymentMethodContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginTop: theme.spacing.xs,
+  },
+  paymentMethod: {
+    color: theme.colors.textSecondary,
+    fontSize: 14,
+  },
+  editButton: {
+    padding: theme.spacing.xs,
+  },
+  notes: {
+    color: theme.colors.textSecondary,
+    fontSize: 14,
+    fontStyle: "italic",
+    marginTop: theme.spacing.xs,
   },
 });

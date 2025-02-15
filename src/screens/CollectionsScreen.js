@@ -5,14 +5,19 @@ import {
   StyleSheet,
   FlatList,
   TouchableOpacity,
+  Switch,
 } from "react-native";
 import { useFocusEffect } from "@react-navigation/native";
 import { Button } from "../components/common/Button";
 import { storage } from "../storage/asyncStorage";
-import { theme } from "../theme";
+import { useTheme } from "../context/ThemeContext";
+import { Ionicons } from "@expo/vector-icons";
+import { SearchBar } from "../components/common/SearchBar";
 
 export default function CollectionsScreen({ navigation }) {
   const [collections, setCollections] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const { isDarkMode, toggleTheme, theme } = useTheme();
 
   const loadCollections = async () => {
     const savedCollections = await storage.getCollections();
@@ -26,11 +31,30 @@ export default function CollectionsScreen({ navigation }) {
     }, [])
   );
 
+  useEffect(() => {
+    navigation.setOptions({
+      headerRight: () => (
+        <View style={styles.headerRight}>
+          <Switch
+            value={isDarkMode}
+            onValueChange={toggleTheme}
+            trackColor={{ false: "#767577", true: "#81b0ff" }}
+            thumbColor={isDarkMode ? "#f5dd4b" : "#f4f3f4"}
+          />
+        </View>
+      ),
+    });
+  }, [isDarkMode]);
+
   const handleAddCollection = () => {
     navigation.navigate("AddCollection", {
       onAdd: loadCollections, // Pass the refresh callback
     });
   };
+
+  const filteredCollections = collections.filter((collection) =>
+    collection.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   const renderCollectionItem = ({ item }) => (
     <TouchableOpacity
@@ -62,10 +86,18 @@ export default function CollectionsScreen({ navigation }) {
     </TouchableOpacity>
   );
 
+  const styles = getStyles(theme);
+
   return (
     <View style={styles.container}>
+      <SearchBar
+        value={searchQuery}
+        onChangeText={setSearchQuery}
+        placeholder="Search collections..."
+      />
+
       <FlatList
-        data={collections}
+        data={filteredCollections}
         renderItem={renderCollectionItem}
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.listContainer}
@@ -87,7 +119,7 @@ export default function CollectionsScreen({ navigation }) {
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (theme) => ({
   container: {
     flex: 1,
     backgroundColor: theme.colors.background,
@@ -139,5 +171,10 @@ const styles = StyleSheet.create({
   emptySubText: {
     color: theme.colors.textSecondary,
     fontSize: 14,
+  },
+  headerRight: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingRight: 16,
   },
 });

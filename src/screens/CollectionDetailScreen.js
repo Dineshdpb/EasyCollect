@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import {
   View,
   StyleSheet,
@@ -12,8 +12,8 @@ import { useFocusEffect } from "@react-navigation/native";
 import { TabBar } from "../components/common/TabBar";
 import { CollectionShopsTab } from "../components/collection/CollectionShopsTab";
 import { CollectionTripsTab } from "../components/collection/CollectionTripsTab";
-import { storage } from "../storage/asyncStorage";
-import { theme } from "../theme";
+import { storage, TRIP_STATUS } from "../storage/asyncStorage";
+import { useTheme } from "../context/ThemeContext";
 import { Ionicons } from "@expo/vector-icons";
 import { Button } from "../components/common/Button";
 
@@ -23,22 +23,26 @@ export default function CollectionDetailScreen({ route, navigation }) {
   const [activeTab, setActiveTab] = useState("shops");
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
   const [newCollectionName, setNewCollectionName] = useState("");
+  const [currentTrip, setCurrentTrip] = useState(null);
+  const { theme } = useTheme();
+
+  useEffect(() => {
+    loadCollection();
+  }, []);
 
   const loadCollection = async () => {
-    const collectionData = await storage.getCollectionById(collectionId);
-    setCollection(collectionData);
-    navigation.setOptions({
-      title: collectionData.name,
-      headerRight: () => (
-        <TouchableOpacity onPress={showCollectionOptions}>
-          <Ionicons
-            name="ellipsis-horizontal"
-            size={24}
-            color={theme.colors.text}
-          />
-        </TouchableOpacity>
-      ),
-    });
+    try {
+      const collectionData = await storage.getCollectionById(collectionId);
+      setCollection(collectionData);
+
+      // Check for active trip
+      const activeTrip = await storage.getCurrentTrip();
+      if (activeTrip && activeTrip.collectionId === collectionId) {
+        setCurrentTrip(activeTrip);
+      }
+    } catch (error) {
+      console.error("Error loading collection:", error);
+    }
   };
 
   const showCollectionOptions = () => {
@@ -103,12 +107,28 @@ export default function CollectionDetailScreen({ route, navigation }) {
     );
   };
 
+  const handleStartTrip = () => {
+    navigation.navigate("ActiveTrip", {
+      collectionId,
+      collectionName: collection.name,
+    });
+  };
+
+  const handleViewActiveTrip = () => {
+    navigation.navigate("ActiveTrip", {
+      collectionId,
+      collectionName: collection.name,
+    });
+  };
+
   // Load when screen comes into focus
   useFocusEffect(
     useCallback(() => {
       loadCollection();
     }, [collectionId])
   );
+
+  const styles = getStyles(theme);
 
   return (
     <View style={styles.container}>
@@ -126,6 +146,8 @@ export default function CollectionDetailScreen({ route, navigation }) {
           collection={collection}
           onRefresh={loadCollection}
           navigation={navigation}
+          currentTrip={currentTrip}
+          handleViewActiveTrip={handleViewActiveTrip}
         />
       ) : (
         <CollectionTripsTab
@@ -171,7 +193,7 @@ export default function CollectionDetailScreen({ route, navigation }) {
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (theme) => ({
   container: {
     flex: 1,
     backgroundColor: theme.colors.background,
@@ -213,5 +235,8 @@ const styles = StyleSheet.create({
   },
   saveButton: {
     backgroundColor: theme.colors.primary,
+  },
+  startButton: {
+    margin: theme.spacing.md,
   },
 });

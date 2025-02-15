@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -6,9 +6,14 @@ import {
   FlatList,
   TouchableOpacity,
 } from "react-native";
-import { theme } from "../../theme";
+import { useTheme } from "../../context/ThemeContext";
+import { SearchBar } from "../common/SearchBar";
 
 export function CollectionTripsTab({ collection, navigation }) {
+  const [searchQuery, setSearchQuery] = useState("");
+  const { theme } = useTheme();
+  const styles = getStyles(theme);
+
   const formatDuration = (startTime, endTime) => {
     if (!endTime) return "In Progress";
     const duration = new Date(endTime) - new Date(startTime);
@@ -16,6 +21,14 @@ export function CollectionTripsTab({ collection, navigation }) {
     const minutes = Math.floor((duration % (1000 * 60 * 60)) / (1000 * 60));
     return `${hours}h ${minutes}m`;
   };
+
+  const filteredTrips = (collection?.trips || []).filter((trip) => {
+    const tripDate = new Date(trip.startTime).toLocaleDateString();
+    return (
+      tripDate.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      trip.totalAmount?.toString().includes(searchQuery)
+    );
+  });
 
   const renderTripItem = ({ item }) => (
     <TouchableOpacity
@@ -57,8 +70,14 @@ export function CollectionTripsTab({ collection, navigation }) {
 
   return (
     <View style={styles.container}>
+      <SearchBar
+        value={searchQuery}
+        onChangeText={setSearchQuery}
+        placeholder="Search trips..."
+      />
+
       <FlatList
-        data={collection?.trips || []}
+        data={filteredTrips}
         renderItem={renderTripItem}
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.listContainer}
@@ -75,7 +94,7 @@ export function CollectionTripsTab({ collection, navigation }) {
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (theme) => ({
   container: {
     flex: 1,
   },

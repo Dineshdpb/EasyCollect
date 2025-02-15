@@ -5,7 +5,7 @@ import { storage } from "../storage/asyncStorage";
 import { theme } from "../theme";
 
 export default function AddShopScreen({ route, navigation }) {
-  const { collectionId, onAdd } = route.params;
+  const { collectionId, tripId, onAdd } = route.params;
   const [shopData, setShopData] = useState({
     name: "",
     address: "",
@@ -16,11 +16,6 @@ export default function AddShopScreen({ route, navigation }) {
     try {
       if (!shopData.name.trim()) {
         Alert.alert("Error", "Please enter a shop name");
-        return;
-      }
-
-      if (!shopData.address.trim()) {
-        Alert.alert("Error", "Please enter a shop address");
         return;
       }
 
@@ -48,28 +43,35 @@ export default function AddShopScreen({ route, navigation }) {
         createdAt: new Date().toISOString(),
         lastVisited: null,
         lastAmount: 0,
+        previousAmounts: [],
       };
 
-      // Update collection with new shop
-      const updatedCollection = {
-        ...collection,
-        shops: [...(collection.shops || []), newShop],
-      };
-
-      await storage.updateCollection(collectionId, updatedCollection);
-
-      Alert.alert("Success", "Shop added successfully", [
-        {
-          text: "OK",
-          onPress: () => {
-            // Refresh the collection screen if onAdd callback exists
-            if (onAdd) {
-              onAdd();
+      // If tripId is provided, add to trip
+      if (tripId) {
+        const updatedCollection = {
+          ...collection,
+          trips: collection.trips.map((trip) => {
+            if (trip.id === tripId) {
+              return {
+                ...trip,
+                shops: [...trip.shops, newShop],
+              };
             }
-            navigation.goBack();
-          },
-        },
-      ]);
+            return trip;
+          }),
+        };
+        await storage.updateCollection(collectionId, updatedCollection);
+      } else {
+        // Add to collection shops as before
+        const updatedCollection = {
+          ...collection,
+          shops: [...(collection.shops || []), newShop],
+        };
+        await storage.updateCollection(collectionId, updatedCollection);
+      }
+
+      if (onAdd) onAdd();
+      navigation.goBack();
     } catch (error) {
       console.error("Error adding shop:", error);
       Alert.alert("Error", "Failed to add shop. Please try again.");

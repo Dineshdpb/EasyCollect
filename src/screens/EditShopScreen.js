@@ -1,16 +1,27 @@
 import React, { useState } from "react";
-import { View, TextInput, StyleSheet, ScrollView, Alert } from "react-native";
+import {
+  View,
+  TextInput,
+  StyleSheet,
+  ScrollView,
+  Alert,
+  TouchableOpacity,
+} from "react-native";
 import { Button } from "../components/common/Button";
 import { storage } from "../storage/asyncStorage";
-import { theme } from "../theme";
+import { useTheme } from "../context/ThemeContext";
+import { Ionicons } from "@expo/vector-icons";
 
 export default function EditShopScreen({ route, navigation }) {
+  const { theme } = useTheme();
   const { shop, collectionId } = route.params;
   const [shopData, setShopData] = useState({
     name: shop.name,
     address: shop.address,
     notes: shop.notes || "",
   });
+  const [amount, setAmount] = useState(shop.amount?.toString() || "0");
+  const [isAmountVisible, setIsAmountVisible] = useState(false);
 
   const handleSave = async () => {
     try {
@@ -19,28 +30,30 @@ export default function EditShopScreen({ route, navigation }) {
         return;
       }
 
-      if (!shopData.address.trim()) {
-        Alert.alert("Error", "Please enter a shop address");
-        return;
-      }
-
       const updatedShop = {
         ...shop,
         name: shopData.name.trim(),
         address: shopData.address.trim(),
         notes: shopData.notes.trim(),
+        amount: parseFloat(amount) || 0,
+        previousAmounts: [
+          ...(shop.previousAmounts || []),
+          {
+            amount: shop.amount,
+            date: new Date().toISOString(),
+            notes: shop.notes,
+          },
+        ].slice(-5), // Keep last 5 entries
       };
 
       await storage.updateShopInCollection(collectionId, shop.id, updatedShop);
-
-      Alert.alert("Success", "Shop updated successfully", [
-        { text: "OK", onPress: () => navigation.goBack() },
-      ]);
+      navigation.goBack();
     } catch (error) {
       Alert.alert("Error", "Failed to update shop");
-      console.error("Error updating shop:", error);
     }
   };
+
+  const styles = getStyles(theme);
 
   return (
     <ScrollView style={styles.container}>
@@ -72,6 +85,28 @@ export default function EditShopScreen({ route, navigation }) {
           numberOfLines={4}
         />
 
+        <View style={styles.amountContainer}>
+          <TextInput
+            style={styles.input}
+            value={amount}
+            onChangeText={setAmount}
+            keyboardType="numeric"
+            secureTextEntry={!isAmountVisible}
+            placeholder="Amount"
+            placeholderTextColor={theme.colors.textSecondary}
+          />
+          <TouchableOpacity
+            style={styles.visibilityToggle}
+            onPress={() => setIsAmountVisible(!isAmountVisible)}
+          >
+            <Ionicons
+              name={isAmountVisible ? "eye-off" : "eye"}
+              size={24}
+              color={theme.colors.textSecondary}
+            />
+          </TouchableOpacity>
+        </View>
+
         <Button
           title="Save Changes"
           onPress={handleSave}
@@ -82,7 +117,7 @@ export default function EditShopScreen({ route, navigation }) {
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (theme) => ({
   container: {
     flex: 1,
     backgroundColor: theme.colors.background,
@@ -104,5 +139,13 @@ const styles = StyleSheet.create({
   },
   saveButton: {
     marginTop: theme.spacing.md,
+  },
+  amountContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: theme.spacing.md,
+  },
+  visibilityToggle: {
+    padding: theme.spacing.sm,
   },
 });
