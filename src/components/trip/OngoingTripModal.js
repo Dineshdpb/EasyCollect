@@ -36,7 +36,7 @@ export function OngoingTripModal({
   const { theme } = useTheme();
   const styles = getStyles(theme);
   const [currentShopIndex, setCurrentShopIndex] = useState(
-    allShops.findIndex((shop) => shop.id === activeShop.id)
+    allShops?.findIndex((shop) => shop?.id === activeShop?.id)
   );
 
   const handlePrevious = () => {

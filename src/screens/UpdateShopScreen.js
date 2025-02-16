@@ -7,6 +7,7 @@ import {
   Switch,
   ScrollView,
   TouchableOpacity,
+  KeyboardAvoidingView,
 } from "react-native";
 import { Button } from "../components/common/Button";
 import { useTheme } from "../context/ThemeContext";
@@ -17,7 +18,9 @@ export default function UpdateShopScreen({ route, navigation }) {
   const { theme } = useTheme();
   const { shopId, onUpdate, initialData, collectionId } = route.params;
   const [activeTab, setActiveTab] = useState("update");
-  const [amount, setAmount] = useState(initialData?.amount?.toString() || "");
+  const [amount, setAmount] = useState(
+    initialData?.amount ? initialData?.amount?.toString() || "" : ""
+  );
   const [notes, setNotes] = useState(initialData?.notes || "");
   const [isClosed, setIsClosed] = useState(initialData?.isClosed || false);
   const [paymentMethod, setPaymentMethod] = useState(
@@ -155,8 +158,13 @@ export default function UpdateShopScreen({ route, navigation }) {
           </TouchableOpacity>
         </View>
       </View>
-
-      <Button title="Save" onPress={handleSubmit} style={styles.submitButton} />
+      <KeyboardAvoidingView behavior="position">
+        <Button
+          title="Save"
+          onPress={handleSubmit}
+          style={styles.submitButton}
+        />
+      </KeyboardAvoidingView>
     </View>
   );
 
@@ -231,7 +239,7 @@ const getStyles = (theme) => ({
     padding: theme.spacing.md,
   },
   inputGroup: {
-    marginBottom: theme.spacing.lg,
+    // marginBottom: theme.spacing.lg,
   },
   label: {
     color: theme.colors.text,
@@ -246,14 +254,14 @@ const getStyles = (theme) => ({
     fontSize: 16,
   },
   textArea: {
-    height: 100,
+    height: 60,
     textAlignVertical: "top",
   },
   switchContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: theme.spacing.lg,
+    // marginBottom: theme.spacing.lg,
   },
   submitButton: {
     marginTop: theme.spacing.md,

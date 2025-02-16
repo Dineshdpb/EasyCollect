@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "Easy Collect",
-    "slug": "easycollect",
+    "slug": "easy-collect-app",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/1024.png",
@@ -22,16 +22,16 @@
         "foregroundImage": "./assets/1024.png",
         "backgroundColor": "#1a1a1a"
       },
-      "package": "com.dineshdpb.collectionmanager"
+      "package": "com.okbill.easycollect"
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
     "extra": {
       "eas": {
-        "projectId": "62bac9c6-bfe8-4f1c-a088-d4599d82c224"
+        "projectId": "16a77518-79ba-413a-9567-1ac7341fbf06"
       }
     },
-    "owner": "dineshpb72"
+    "owner": "ssnapp"
   }
 }
