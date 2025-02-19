@@ -36,7 +36,6 @@ export default function TripDetailsScreen({ route, navigation }) {
   const loadTripDetails = async () => {
     const collectionData = await storage.getCollectionById(collectionId);
     setCollection(collectionData);
-
     const tripData = collectionData.trips.find((t) => t.id === tripId);
     setTrip(tripData);
 
@@ -104,10 +103,10 @@ export default function TripDetailsScreen({ route, navigation }) {
 
   const showTripOptions = () => {
     Alert.alert("Trip Options", "Choose an action", [
-      {
-        text: "Edit Trip Details",
-        onPress: handleEditTripDetails,
-      },
+      // {
+      //   text: "Edit Trip Details",
+      //   onPress: handleEditTripDetails,
+      // },
       {
         text: "Delete Trip",
         onPress: handleDeleteTrip,
@@ -139,7 +138,7 @@ export default function TripDetailsScreen({ route, navigation }) {
           style: "destructive",
           onPress: async () => {
             try {
-              await storage.deleteTripFromCollection(collectionId, trip.id);
+              await storage.deleteTripFromCollection(collectionId, tripId);
               navigation.goBack();
             } catch (error) {
               Alert.alert("Error", "Failed to delete trip");

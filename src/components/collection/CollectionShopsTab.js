@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import { Button } from "../common/Button";
 import { useTheme } from "../../context/ThemeContext";
-import { TRIP_STATUS } from "../../storage/asyncStorage";
+import { storage, TRIP_STATUS } from "../../storage/asyncStorage";
 import { SearchBar } from "../common/SearchBar";
 
 export function CollectionShopsTab({
@@ -99,8 +99,8 @@ export function CollectionShopsTab({
 
   const handleDeleteShop = (shop) => {
     Alert.alert(
-      "Delete Shop",
-      "Are you sure you want to delete this shop? This action cannot be undone.",
+      "Are you sure you want to delete this shop?",
+      "Trips for this shop will still be visible. Once deleted, this action cannot be undone.",
       [
         { text: "Cancel", style: "cancel" },
         {

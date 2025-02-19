@@ -85,7 +85,7 @@ export default function EditShopScreen({ route, navigation }) {
           numberOfLines={4}
         />
 
-        <View style={styles.amountContainer}>
+        {/* <View style={styles.amountContainer}>
           <TextInput
             style={styles.input}
             value={amount}
@@ -105,7 +105,7 @@ export default function EditShopScreen({ route, navigation }) {
               color={theme.colors.textSecondary}
             />
           </TouchableOpacity>
-        </View>
+        </View> */}
 
         <Button
           title="Save Changes"

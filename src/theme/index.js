@@ -1,3 +1,4 @@
+export let theme = darkTheme;
 export const lightTheme = {
   dark: false,
   colors: {
@@ -43,8 +44,6 @@ export const darkTheme = {
     xl: 32,
   },
 };
-
-export let theme = darkTheme; // default theme
 
 export const setTheme = (isDark) => {
   theme = isDark ? darkTheme : lightTheme;

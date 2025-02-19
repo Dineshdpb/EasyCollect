@@ -31,21 +31,21 @@ export default function CollectionsScreen({ navigation }) {
     }, [])
   );
 
-  useEffect(() => {
-    navigation.setOptions({
-      headerRight: () => (
-        <View style={styles.headerRight}>
-          <TouchableOpacity style={styles.themeButton} onPress={toggleTheme}>
-            <Ionicons
-              name={isDarkMode ? "sunny" : "moon"}
-              size={24}
-              color={theme.colors.text}
-            />
-          </TouchableOpacity>
-        </View>
-      ),
-    });
-  }, [isDarkMode]);
+  // useEffect(() => {
+  //   navigation.setOptions({
+  //     headerRight: () => (
+  //       <View style={styles.headerRight}>
+  //         <TouchableOpacity style={styles.themeButton} onPress={toggleTheme}>
+  //           <Ionicons
+  //             name={isDarkMode ? "sunny" : "moon"}
+  //             size={24}
+  //             color={theme.colors.text}
+  //           />
+  //         </TouchableOpacity>
+  //       </View>
+  //     ),
+  //   });
+  // }, [isDarkMode]);
 
   const handleAddCollection = () => {
     navigation.navigate("AddCollection", {
