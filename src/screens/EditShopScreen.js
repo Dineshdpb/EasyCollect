@@ -29,7 +29,7 @@ export default function EditShopScreen({ route, navigation }) {
         Alert.alert("Error", "Please enter a shop name");
         return;
       }
-
+      Keyboard.dismiss();
       const updatedShop = {
         ...shop,
         name: shopData.name.trim(),
@@ -56,7 +56,7 @@ export default function EditShopScreen({ route, navigation }) {
   const styles = getStyles(theme);
 
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView style={styles.container} keyboardShouldPersistTaps="never">
       <View style={styles.form}>
         <TextInput
           style={styles.input}

@@ -104,6 +104,7 @@ export default function ActiveTripScreen({ route, navigation }) {
       shopName: shop.name,
       collectionId,
       initialData: {
+        ...shop,
         amount: shop.amount,
         notes: shop.notes,
         isClosed: shop.isClosed,
@@ -194,6 +195,7 @@ export default function ActiveTripScreen({ route, navigation }) {
       shopName: shop.name,
       collectionId,
       initialData: {
+        ...shop,
         amount: shop.amount,
         notes: shop.notes,
         isClosed: shop.isClosed,

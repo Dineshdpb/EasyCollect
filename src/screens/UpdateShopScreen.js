@@ -21,8 +21,15 @@ export default function UpdateShopScreen({ route, navigation }) {
   const [amount, setAmount] = useState(
     initialData?.amount ? initialData?.amount?.toString() || "" : ""
   );
+
   const [notes, setNotes] = useState(initialData?.notes || "");
   const [isClosed, setIsClosed] = useState(initialData?.isClosed || false);
+  const [gpayAmount, setGpayAmount] = useState(
+    initialData?.gpayAmount ? initialData?.gpayAmount?.toString() || "" : ""
+  );
+  const [cashAmount, setCashAmount] = useState(
+    initialData?.cashAmount ? initialData?.cashAmount?.toString() || "" : ""
+  );
   const [paymentMethod, setPaymentMethod] = useState(
     initialData?.paymentMethod || "CASH"
   );
@@ -66,8 +73,12 @@ export default function UpdateShopScreen({ route, navigation }) {
   };
 
   const handleSubmit = () => {
+    const onlineAmountTemp = gpayAmount ? parseFloat(gpayAmount) : 0;
+    const cashAmountTemp = cashAmount ? parseFloat(cashAmount) : 0;
     const updateData = {
-      amount: amount ? parseFloat(amount) : 0,
+      amount: doGetTotal(),
+      gpayAmount: onlineAmountTemp,
+      cashAmount: cashAmountTemp,
       notes: notes.trim(),
       isClosed,
       paymentMethod,
@@ -79,19 +90,77 @@ export default function UpdateShopScreen({ route, navigation }) {
   };
 
   const styles = getStyles(theme);
-
+  const doGetTotal = () => {
+    let sum = 0;
+    if (parseFloat(gpayAmount) > 0) {
+      sum += parseFloat(gpayAmount);
+    }
+    if (parseFloat(cashAmount) > 0) {
+      sum += parseFloat(cashAmount);
+    }
+    return sum;
+  };
   const renderUpdateForm = () => (
     <View>
       <View style={styles.inputGroup}>
-        <Text style={styles.label}>Collection Amount</Text>
-        <TextInput
-          style={styles.input}
-          value={amount}
-          onChangeText={setAmount}
-          keyboardType="numeric"
-          placeholder="Enter amount"
-          placeholderTextColor={theme.colors.textSecondary}
-        />
+        <Text
+          style={{
+            color: theme.colors.text,
+            justifyContent: "center",
+            textAlign: "center",
+            fontSize: 18,
+          }}
+        >
+          Total Amount: {doGetTotal()}
+        </Text>
+      </View>
+      <View style={styles.inputGroup}>
+        <View
+          style={[
+            {
+              flexDirection: "row",
+              paddingTop: 10,
+              justifyContent: "space-between",
+            },
+          ]}
+        >
+          <View
+            style={{
+              flexDirection: "column",
+              flex: 1,
+              padding: theme.spacing.sm,
+              gap: 5,
+            }}
+          >
+            <Text style={{ color: theme.colors.text }}>CASH AMOUNT</Text>
+            <TextInput
+              style={[styles.input]}
+              onChangeText={setCashAmount}
+              value={cashAmount}
+              keyboardType="numeric"
+              placeholder="CASH"
+              placeholderTextColor={theme.colors.textSecondary}
+            ></TextInput>
+          </View>
+          <View
+            style={{
+              flexDirection: "column",
+              flex: 1,
+              padding: theme.spacing.sm,
+              gap: 5,
+            }}
+          >
+            <Text style={{ color: theme.colors.text }}>ONLINE AMOUNT</Text>
+            <TextInput
+              style={[styles.input]}
+              onChangeText={setGpayAmount}
+              value={gpayAmount}
+              keyboardType="numeric"
+              placeholder="ONLINE"
+              placeholderTextColor={theme.colors.textSecondary}
+            ></TextInput>
+          </View>
+        </View>
       </View>
 
       <View style={styles.inputGroup}>
@@ -117,47 +186,6 @@ export default function UpdateShopScreen({ route, navigation }) {
         />
       </View>
 
-      <View style={styles.inputGroup}>
-        <Text style={styles.label}>Payment Method</Text>
-        <View style={styles.paymentButtons}>
-          <TouchableOpacity
-            style={[
-              styles.paymentButton,
-              paymentMethod === "CASH" && styles.selectedPayment,
-            ]}
-            onPress={() => setPaymentMethod("CASH")}
-          >
-            <Ionicons
-              name="cash-outline"
-              size={24}
-              color={
-                paymentMethod === "CASH"
-                  ? theme.colors.text
-                  : theme.colors.textSecondary
-              }
-            />
-            <Text style={styles.paymentButtonText}>CASH</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[
-              styles.paymentButton,
-              paymentMethod === "GPAY" && styles.selectedPayment,
-            ]}
-            onPress={() => setPaymentMethod("GPAY")}
-          >
-            <FontAwesome5
-              name="google-pay"
-              size={24}
-              color={
-                paymentMethod === "GPAY"
-                  ? theme.colors.text
-                  : theme.colors.textSecondary
-              }
-            />
-            <Text style={styles.paymentButtonText}>GPAY</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
       <KeyboardAvoidingView behavior="position">
         <Button
           title="Save"

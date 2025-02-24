@@ -42,6 +42,8 @@ const AppContent = () => {
   const [currentTrip, setCurrentTrip] = useState(null);
   const [activeShop, setActiveShop] = useState(null);
   const [amount, setAmount] = useState("");
+  const [gpayAmount, setGpayAmount] = useState("");
+  const [cashAmount, setCashAmount] = useState("");
   const [notes, setNotes] = useState("");
   const [isClosed, setIsClosed] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState("CASH");
@@ -72,10 +74,14 @@ const AppContent = () => {
           );
           if (savedShopData) {
             setAmount(savedShopData.amount?.toString() || "");
+            setGpayAmount(savedShopData.gpayAmount?.toString() || "");
+            setCashAmount(savedShopData.cashAmount?.toString() || "");
             setNotes(savedShopData.notes || "");
             setIsClosed(savedShopData.isClosed || false);
             setPaymentMethod(savedShopData.paymentMethod || "CASH");
           } else {
+            setGpayAmount("");
+            setCashAmount("");
             setAmount("");
             setNotes("");
             setIsClosed(false);
@@ -112,10 +118,22 @@ const AppContent = () => {
     }
   };
 
+  const doCurrentGetTotal = () => {
+    let sum = 0;
+    if (parseFloat(gpayAmount) > 0) {
+      sum += parseFloat(gpayAmount);
+    }
+    if (parseFloat(cashAmount) > 0) {
+      sum += parseFloat(cashAmount);
+    }
+    return sum;
+  };
   const handleShopUpdate = async () => {
     try {
       const updateData = {
-        amount: amount ? parseFloat(amount) : 0,
+        amount: doCurrentGetTotal(),
+        gpayAmount: gpayAmount,
+        cashAmount: cashAmount,
         notes: notes.trim(),
         isClosed,
         paymentMethod,
@@ -341,12 +359,17 @@ const AppContent = () => {
         </Stack.Navigator>
 
         <OngoingTripModal
+          doCurrentGetTotal={doCurrentGetTotal}
           visible={showTripModal}
           currentTrip={currentTrip}
           activeShop={activeShop}
           allShops={shops}
           amount={amount}
           setAmount={setAmount}
+          gpayAmount={gpayAmount}
+          cashAmount={cashAmount}
+          setGpayAmount={setGpayAmount}
+          setCashAmount={setCashAmount}
           notes={notes}
           setNotes={setNotes}
           isClosed={isClosed}

@@ -22,7 +22,8 @@
         "foregroundImage": "./assets/1024.png",
         "backgroundColor": "#1a1a1a"
       },
-      "package": "com.okbill.easycollect"
+      "package": "com.okbill.easycollect",
+      "versionCode": 3
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -31,6 +32,9 @@
       "eas": {
         "projectId": "16a77518-79ba-413a-9567-1ac7341fbf06"
       }
+    },
+    "runtimeVersion": {
+      "policy": "sdkVersion"
     },
     "owner": "ssnapp"
   }

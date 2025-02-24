@@ -20,6 +20,10 @@ export function OngoingTripModal({
   allShops,
   amount,
   setAmount,
+  gpayAmount,
+  cashAmount,
+  setGpayAmount,
+  setCashAmount,
   notes,
   setNotes,
   isClosed,
@@ -32,6 +36,7 @@ export function OngoingTripModal({
   onSave,
   onShopChange,
   onSaveAndNext,
+  doCurrentGetTotal,
 }) {
   const { theme } = useTheme();
   const styles = getStyles(theme);
@@ -46,7 +51,16 @@ export function OngoingTripModal({
       onShopChange(allShops[newIndex]);
     }
   };
-
+  const doGetTotal = () => {
+    let sum = 0;
+    if (parseFloat(gpayAmount) > 0) {
+      sum += parseFloat(gpayAmount);
+    }
+    if (parseFloat(cashAmount) > 0) {
+      sum += parseFloat(cashAmount);
+    }
+    return sum;
+  };
   const handleNext = () => {
     if (currentShopIndex < allShops.length - 1) {
       const newIndex = currentShopIndex + 1;
@@ -231,24 +245,78 @@ export function OngoingTripModal({
               </View>
             )}
 
-            <View style={styles.inputGroup}>
-              <Text style={[styles.label, { color: theme.colors.text }]}>
-                Amount
+            <View>
+              <Text
+                style={{
+                  color: theme.colors.text,
+                }}
+              >
+                Total Amount: {doGetTotal()}
               </Text>
-              <TextInput
+            </View>
+            <View style={styles.inputGroup}>
+              <View
                 style={[
-                  styles.input,
                   {
-                    backgroundColor: theme.colors.background,
-                    color: theme.colors.text,
+                    flexDirection: "row",
+                    paddingTop: 10,
+                    justifyContent: "space-between",
                   },
                 ]}
-                value={amount}
-                onChangeText={setAmount}
-                keyboardType="numeric"
-                placeholder="Enter amount"
-                placeholderTextColor={theme.colors.textSecondary}
-              />
+              >
+                <View
+                  style={{
+                    flexDirection: "column",
+                    flex: 1,
+                    padding: theme.spacing.sm,
+                    gap: 5,
+                  }}
+                >
+                  <Text style={{ color: theme.colors.text }}>CASH AMOUNT</Text>
+                  <TextInput
+                    style={[
+                      styles.input,
+                      {
+                        color: theme.colors.text,
+                        backgroundColor: theme.colors.background,
+                      },
+                    ]}
+                    onChangeText={setCashAmount}
+                    value={cashAmount}
+                    keyboardType="numeric"
+                    placeholder="CASH "
+                    placeholderTextColor={theme.colors.textSecondary}
+                  ></TextInput>
+                </View>
+                <View
+                  style={[
+                    {
+                      flexDirection: "column",
+                      flex: 1,
+                      padding: theme.spacing.sm,
+                      gap: 5,
+                    },
+                  ]}
+                >
+                  <Text style={{ color: theme.colors.text }}>
+                    ONLINE AMOUNT
+                  </Text>
+                  <TextInput
+                    style={[
+                      styles.input,
+                      {
+                        color: theme.colors.text,
+                        backgroundColor: theme.colors.background,
+                      },
+                    ]}
+                    onChangeText={setGpayAmount}
+                    value={gpayAmount}
+                    keyboardType="numeric"
+                    placeholder="ONLINE"
+                    placeholderTextColor={theme.colors.textSecondary}
+                  ></TextInput>
+                </View>
+              </View>
             </View>
 
             <View style={styles.inputGroup}>
@@ -271,90 +339,6 @@ export function OngoingTripModal({
                 multiline
                 numberOfLines={3}
               />
-            </View>
-
-            <View style={styles.paymentMethodContainer}>
-              <Text style={[styles.label, { color: theme.colors.text }]}>
-                Payment Method
-              </Text>
-              <View style={styles.paymentButtons}>
-                <TouchableOpacity
-                  style={[
-                    styles.paymentButton,
-                    paymentMethod === "CASH" && styles.selectedPayment,
-                    {
-                      backgroundColor:
-                        paymentMethod === "CASH"
-                          ? theme.colors.primary
-                          : theme.colors.background,
-                      borderWidth: 1,
-                      borderColor: theme.colors.border,
-                    },
-                  ]}
-                  onPress={() => setPaymentMethod("CASH")}
-                >
-                  <Ionicons
-                    name="cash-outline"
-                    size={24}
-                    color={
-                      paymentMethod === "CASH"
-                        ? theme.colors.buttonText
-                        : theme.colors.textSecondary
-                    }
-                  />
-                  <Text
-                    style={[
-                      styles.paymentButtonText,
-                      {
-                        color:
-                          paymentMethod === "CASH"
-                            ? theme.colors.buttonText
-                            : theme.colors.text,
-                      },
-                    ]}
-                  >
-                    CASH
-                  </Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={[
-                    styles.paymentButton,
-                    paymentMethod === "GPAY" && styles.selectedPayment,
-                    {
-                      backgroundColor:
-                        paymentMethod === "GPAY"
-                          ? theme.colors.primary
-                          : theme.colors.background,
-                      borderWidth: 1,
-                      borderColor: theme.colors.border,
-                    },
-                  ]}
-                  onPress={() => setPaymentMethod("GPAY")}
-                >
-                  <FontAwesome5
-                    name="google-pay"
-                    size={24}
-                    color={
-                      paymentMethod === "GPAY"
-                        ? theme.colors.buttonText
-                        : theme.colors.textSecondary
-                    }
-                  />
-                  <Text
-                    style={[
-                      styles.paymentButtonText,
-                      {
-                        color:
-                          paymentMethod === "GPAY"
-                            ? theme.colors.buttonText
-                            : theme.colors.text,
-                      },
-                    ]}
-                  >
-                    GPAY
-                  </Text>
-                </TouchableOpacity>
-              </View>
             </View>
 
             <View style={styles.switchContainer}>

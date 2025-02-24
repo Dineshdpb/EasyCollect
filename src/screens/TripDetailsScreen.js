@@ -7,16 +7,19 @@ import {
   TouchableOpacity,
   Alert,
   ActionSheetIOS,
+  Modal,
 } from "react-native";
 import { storage } from "../storage/asyncStorage";
 import { useTheme } from "../context/ThemeContext";
 import { Ionicons } from "@expo/vector-icons";
+import { generatePDF } from "../components/ExportTripPDF.jsx";
 
 export default function TripDetailsScreen({ route, navigation }) {
   const { theme } = useTheme();
   const { tripId, collectionId } = route.params;
   const [trip, setTrip] = useState(null);
   const [collection, setCollection] = useState(null);
+  const [modalVisible, setModalVisible] = useState(false);
 
   useEffect(() => {
     loadTripDetails();
@@ -37,7 +40,14 @@ export default function TripDetailsScreen({ route, navigation }) {
     const collectionData = await storage.getCollectionById(collectionId);
     setCollection(collectionData);
     const tripData = collectionData.trips.find((t) => t.id === tripId);
-    setTrip(tripData);
+    console.log("tripData", tripData.shops);
+    let gpaySum = 0;
+    let cashSum = 0;
+    for (let i = 0; i < tripData.shops?.length; i++) {
+      gpaySum += parseFloat(tripData.shops[i].gpayAmount);
+      cashSum += parseFloat(tripData.shops[i].cashAmount);
+    }
+    setTrip({ ...tripData, gpaySum, cashSum });
 
     navigation.setOptions({
       title: `Trip - ${new Date(tripData.startTime).toLocaleDateString()}`,
@@ -102,21 +112,7 @@ export default function TripDetailsScreen({ route, navigation }) {
   };
 
   const showTripOptions = () => {
-    Alert.alert("Trip Options", "Choose an action", [
-      // {
-      //   text: "Edit Trip Details",
-      //   onPress: handleEditTripDetails,
-      // },
-      {
-        text: "Delete Trip",
-        onPress: handleDeleteTrip,
-        style: "destructive",
-      },
-      {
-        text: "Cancel",
-        style: "cancel",
-      },
-    ]);
+    setModalVisible(true);
   };
 
   const handleEditTripDetails = () => {
@@ -165,7 +161,19 @@ export default function TripDetailsScreen({ route, navigation }) {
 
       <View style={styles.shopDetails}>
         <View style={styles.detailRow}>
-          <Text style={styles.amount}>₹{item.amount || 0}</Text>
+          <View style={styles.statItem}>
+            <Text style={styles.amount}>₹{item.amount || 0}</Text>
+            <Text style={styles.statLabel}>TOTAL</Text>
+          </View>
+          <View style={styles.statItem}>
+            <Text style={styles.amount}>₹{item.gpayAmount || 0}</Text>
+            <Text style={styles.statLabel}>ONLINE</Text>
+          </View>
+          <View style={styles.statItem}>
+            <Text style={styles.amount}>₹{item.cashAmount || 0}</Text>
+            <Text style={styles.statLabel}>CASH</Text>
+          </View>
+
           {item.isClosed && <Text style={styles.closedTag}>CLOSED</Text>}
         </View>
         {item.notes && <Text style={styles.notes}>{item.notes}</Text>}
@@ -208,7 +216,15 @@ export default function TripDetailsScreen({ route, navigation }) {
         </View>
         <View style={styles.statItem}>
           <Text style={styles.statValue}>₹{trip.totalAmount}</Text>
-          <Text style={styles.statLabel}>Total Collection</Text>
+          <Text style={styles.statLabel}>Total</Text>
+        </View>
+        <View style={styles.statItem}>
+          <Text style={styles.statValue}>₹{trip.gpaySum}</Text>
+          <Text style={styles.statLabel}>ONLINE</Text>
+        </View>
+        <View style={styles.statItem}>
+          <Text style={styles.statValue}>₹{trip.cashSum}</Text>
+          <Text style={styles.statLabel}>CASH</Text>
         </View>
         <View style={styles.statItem}>
           <Text style={styles.statValue}>{trip.closedShops || 0}</Text>
@@ -224,6 +240,53 @@ export default function TripDetailsScreen({ route, navigation }) {
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.listContainer}
       />
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <TouchableOpacity
+              style={styles.optionButton}
+              onPress={() => {
+                setModalVisible(false);
+                generatePDF(trip, collection);
+              }}
+            >
+              <Ionicons
+                name="share-outline"
+                size={24}
+                color={theme.colors.text}
+              />
+              <Text style={styles.optionText}>Share PDF</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.optionButton}
+              onPress={() => {
+                setModalVisible(false);
+                handleDeleteTrip();
+              }}
+            >
+              <Ionicons
+                name="trash-outline"
+                size={24}
+                color={theme.colors.error}
+              />
+              <Text style={[styles.optionText, { color: theme.colors.error }]}>
+                Delete Trip
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.cancelButton}
+              onPress={() => setModalVisible(false)}
+            >
+              <Text style={styles.optionText}>Cancel</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -256,7 +319,7 @@ const getStyles = (theme) => ({
   statsContainer: {
     flexDirection: "row",
     backgroundColor: theme.colors.surface,
-    padding: theme.spacing.md,
+    // padding: theme.spacing.md,
     marginTop: theme.spacing.sm,
   },
   statItem: {
@@ -350,5 +413,30 @@ const getStyles = (theme) => ({
   },
   listContainer: {
     padding: theme.spacing.md,
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: "flex-end",
+    backgroundColor: "rgba(0,0,0,0.5)",
+  },
+  modalContent: {
+    backgroundColor: theme.colors.surface,
+    padding: theme.spacing.md,
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
+  },
+  optionButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    padding: theme.spacing.md,
+  },
+  optionText: {
+    fontSize: 16,
+    marginLeft: 10,
+    color: theme.colors.text,
+  },
+  cancelButton: {
+    padding: theme.spacing.md,
+    alignItems: "center",
   },
 });
