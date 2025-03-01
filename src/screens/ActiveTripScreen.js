@@ -225,14 +225,18 @@ export default function ActiveTripScreen({ route, navigation }) {
             <Text style={[styles.shopName, { color: theme.colors.text }]}>
               {shop.name}
             </Text>
-            <Text
-              style={[
-                styles.shopAddress,
-                { color: theme.colors.textSecondary },
-              ]}
-            >
-              {shop.address}
-            </Text>
+            {shop?.address ? (
+              <Text
+                style={[
+                  styles.shopAddress,
+                  { color: theme.colors.textSecondary },
+                ]}
+              >
+                {shop.address}
+              </Text>
+            ) : (
+              ""
+            )}
             {shop.status === "VISITED" && (
               <View style={styles.amountContainer}>
                 <TouchableOpacity
@@ -345,10 +349,7 @@ export default function ActiveTripScreen({ route, navigation }) {
       />
 
       <TouchableOpacity
-        style={[
-          styles.endTripButton,
-          { backgroundColor: theme.colors.error },
-        ]}
+        style={[styles.endTripButton, { backgroundColor: theme.colors.error }]}
         onPress={confirmEndTrip}
       >
         <View style={styles.endTripContent}>
@@ -463,25 +464,25 @@ const getStyles = (theme) => ({
     marginTop: theme.spacing.sm,
   },
   endTripButton: {
-    position: 'absolute',
+    position: "absolute",
     bottom: theme.spacing.lg,
     right: theme.spacing.md,
     borderRadius: 8,
     padding: theme.spacing.sm,
     elevation: 4,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
     shadowRadius: 4,
   },
   endTripContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: theme.spacing.sm,
   },
   endTripText: {
-    color: 'white',
+    color: "white",
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: "600",
   },
 });

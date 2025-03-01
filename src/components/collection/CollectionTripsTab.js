@@ -50,7 +50,19 @@ export function CollectionTripsTab({ collection, navigation }) {
       >
         <View style={styles.tripHeader}>
           <View>
-            <Text style={styles.tripDate}>{formattedDate}</Text>
+            <View style={styles.titleContainer}>
+              <Text style={styles.tripDate}>{formattedDate}</Text>
+              {item.isCloned && (
+                <View style={styles.cloneBadge}>
+                  <Text style={styles.cloneBadgeText}>Corrected</Text>
+                </View>
+              )}
+            </View>
+            {item.name && (
+              <Text style={styles.tripName} numberOfLines={1}>
+                {item.name}
+              </Text>
+            )}
             <Text style={styles.tripTime}>{formattedTime}</Text>
           </View>
           <Text style={styles.tripAmount}>₹{item.totalAmount || 0}</Text>
@@ -123,10 +135,20 @@ const getStyles = (theme) => ({
     alignItems: "center",
     marginBottom: theme.spacing.md,
   },
+  titleContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: theme.spacing.sm,
+  },
   tripDate: {
     color: theme.colors.text,
     fontSize: 16,
     fontWeight: "600",
+  },
+  tripName: {
+    color: theme.colors.textSecondary,
+    fontSize: 14,
+    marginTop: 2,
   },
   tripTime: {
     color: theme.colors.textSecondary,
@@ -137,6 +159,17 @@ const getStyles = (theme) => ({
     color: theme.colors.success,
     fontSize: 16,
     fontWeight: "600",
+  },
+  cloneBadge: {
+    backgroundColor: theme.colors.primaryLight,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 4,
+  },
+  cloneBadgeText: {
+    color: theme.colors.primary,
+    fontSize: 12,
+    fontWeight: '500',
   },
   tripStats: {
     flexDirection: "row",

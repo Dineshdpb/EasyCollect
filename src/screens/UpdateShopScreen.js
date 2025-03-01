@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   View,
   Text,
@@ -22,6 +22,9 @@ export default function UpdateShopScreen({ route, navigation }) {
     initialData?.amount ? initialData?.amount?.toString() || "" : ""
   );
 
+  const cashInputRef = useRef(null);
+  const onlineInputRef = useRef(null);
+
   const [notes, setNotes] = useState(initialData?.notes || "");
   const [isClosed, setIsClosed] = useState(initialData?.isClosed || false);
   const [gpayAmount, setGpayAmount] = useState(
@@ -37,6 +40,13 @@ export default function UpdateShopScreen({ route, navigation }) {
 
   useEffect(() => {
     loadShopHistory();
+  }, []);
+
+  useEffect(() => {
+    // Focus cash amount input by default
+    if (cashInputRef.current) {
+      cashInputRef.current.focus();
+    }
   }, []);
 
   const loadShopHistory = async () => {
@@ -89,6 +99,18 @@ export default function UpdateShopScreen({ route, navigation }) {
     navigation.goBack();
   };
 
+  const handleCashSubmit = () => {
+    // When cash amount is submitted, focus online amount
+    if (onlineInputRef.current) {
+      onlineInputRef.current.focus();
+    }
+  };
+
+  const handleOnlineSubmit = () => {
+    // When online amount is submitted, call handleSubmit
+    handleSubmit();
+  };
+
   const styles = getStyles(theme);
   const doGetTotal = () => {
     let sum = 0;
@@ -134,13 +156,17 @@ export default function UpdateShopScreen({ route, navigation }) {
           >
             <Text style={{ color: theme.colors.text }}>CASH AMOUNT</Text>
             <TextInput
+              ref={cashInputRef}
               style={[styles.input]}
               onChangeText={setCashAmount}
               value={cashAmount}
               keyboardType="numeric"
               placeholder="CASH"
               placeholderTextColor={theme.colors.textSecondary}
-            ></TextInput>
+              returnKeyType="next"
+              onSubmitEditing={handleCashSubmit}
+              blurOnSubmit={false}
+            />
           </View>
           <View
             style={{
@@ -152,13 +178,16 @@ export default function UpdateShopScreen({ route, navigation }) {
           >
             <Text style={{ color: theme.colors.text }}>ONLINE AMOUNT</Text>
             <TextInput
+              ref={onlineInputRef}
               style={[styles.input]}
               onChangeText={setGpayAmount}
               value={gpayAmount}
               keyboardType="numeric"
               placeholder="ONLINE"
               placeholderTextColor={theme.colors.textSecondary}
-            ></TextInput>
+              returnKeyType="done"
+              onSubmitEditing={handleOnlineSubmit}
+            />
           </View>
         </View>
       </View>

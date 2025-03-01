@@ -38,6 +38,8 @@ export const generatePDF = async (trip, collection) => {
             <th>Shop Name</th>
             <th>Time</th>
             <th>Amount</th>
+            <th>Cash</th>
+            <th>Online</th>
             <th>Status</th>
           </tr>
           ${trip.shops
@@ -47,6 +49,8 @@ export const generatePDF = async (trip, collection) => {
                   <td>${shop.name}</td>
                   <td>${new Date(shop.visitTime).toLocaleTimeString()}</td>
                   <td>₹${shop.amount || 0}</td>
+                  <td>₹${shop.cashAmount || 0}</td>
+                  <td>₹${shop.gpayAmount || 0}</td>
                   <td>${shop.isClosed ? "Closed" : "Open"}</td>
                 </tr>
               `
