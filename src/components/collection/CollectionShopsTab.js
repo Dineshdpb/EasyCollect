@@ -130,12 +130,16 @@ export function CollectionShopsTab({
               styles.startButton,
               { backgroundColor: theme.colors.primary },
             ]}
+            icon="play-circle"
+            iconSize={20}
           />
         ) : (
           <Button
             title="Start Collection Trip"
             onPress={handleStartTrip}
             style={styles.startButton}
+            icon="flag"
+            iconSize={20}
           />
         )}
       </View>

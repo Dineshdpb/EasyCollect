@@ -30,11 +30,13 @@ A. CollectionsScreen (Main Screen)
    - Collection list with stats
    - Theme toggle (light/dark)
    - Search functionality
-   - Add new collection button
+   - Full-width "Add Collection" button
+   - Floating "Start Trip" action button
    Key Components:
    - SearchBar
    - FlatList for collections
    - ThemeToggle button
+   - FAB with text label
 
 B. AddShopScreen
    File: src/screens/AddShopScreen.js
@@ -60,7 +62,7 @@ C. UpdateShopScreen
    Features:
    - Tabbed interface (Update/History)
    - Payment collection
-   - Payment method selection
+   - Payment method selection (Cash/Online)
    - Visit history
    Key Components:
    - TabBar
@@ -72,14 +74,20 @@ D. ActiveTripScreen
    Purpose: Manage ongoing collection trip
    Features:
    - Shop list with visit status
-   - Amount collection
-   - Payment tracking
+   - Amount collection with privacy toggle
+   - Payment method indicators (Cash/Online)
    - Search functionality
+   - Trip summary stats
    Data Flow:
    1. Load/create trip
    2. Update shop visits
    3. Track total collection
    4. Handle trip completion
+   UI Features:
+   - Clear payment method icons
+   - Amount visibility toggle with eye icon
+   - Shop status indicators
+   - Trip progress tracking
 
 4. DATA STRUCTURES
 -----------------

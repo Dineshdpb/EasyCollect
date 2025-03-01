@@ -10,6 +10,7 @@ import {
 import { Button } from "../components/common/Button";
 import { storage } from "../storage/asyncStorage";
 import { useTheme } from "../context/ThemeContext";
+import { Ionicons } from "@expo/vector-icons";
 
 export default function AddShopScreen({ route, navigation }) {
   const { theme } = useTheme();
@@ -90,39 +91,85 @@ export default function AddShopScreen({ route, navigation }) {
 
   return (
     <ScrollView style={styles.container}>
+      <View style={styles.header}>
+        <Ionicons
+          name="business-outline"
+          size={60}
+          color={theme.colors.primary}
+          style={styles.icon}
+        />
+        <Text style={[styles.title, { color: theme.colors.text }]}>
+          Add New Shop
+        </Text>
+        <Text
+          style={[styles.description, { color: theme.colors.textSecondary }]}
+        >
+          Add shop details to start tracking{"\n"}payments and visits
+        </Text>
+      </View>
+
       <View style={styles.form}>
-        <TextInput
-          style={styles.input}
-          value={shopData.name}
-          onChangeText={(text) => setShopData({ ...shopData, name: text })}
-          placeholder="Shop Name"
-          placeholderTextColor={theme.colors.textSecondary}
-          autoFocus
-        />
+        <View style={styles.inputContainer}>
+          <Ionicons
+            name="storefront-outline"
+            size={24}
+            color={theme.colors.textSecondary}
+            style={styles.inputIcon}
+          />
+          <TextInput
+            style={[styles.input, { color: theme.colors.text }]}
+            value={shopData.name}
+            onChangeText={(text) => setShopData({ ...shopData, name: text })}
+            placeholder="Shop Name"
+            placeholderTextColor={theme.colors.textSecondary}
+            autoFocus
+          />
+        </View>
 
-        <TextInput
-          style={styles.input}
-          value={shopData.address}
-          onChangeText={(text) => setShopData({ ...shopData, address: text })}
-          placeholder="Shop Address"
-          placeholderTextColor={theme.colors.textSecondary}
-          multiline
-        />
+        <View style={styles.inputContainer}>
+          <Ionicons
+            name="location-outline"
+            size={24}
+            color={theme.colors.textSecondary}
+            style={styles.inputIcon}
+          />
+          <TextInput
+            style={[styles.input, { color: theme.colors.text }]}
+            value={shopData.address}
+            onChangeText={(text) => setShopData({ ...shopData, address: text })}
+            placeholder="Shop Address (Optional)"
+            placeholderTextColor={theme.colors.textSecondary}
+            multiline
+          />
+        </View>
 
-        <TextInput
-          style={[styles.input, styles.textArea]}
-          value={shopData.notes}
-          onChangeText={(text) => setShopData({ ...shopData, notes: text })}
-          placeholder="Notes (Optional)"
-          placeholderTextColor={theme.colors.textSecondary}
-          multiline
-          numberOfLines={4}
-        />
+        <View style={styles.inputContainer}>
+          <Ionicons
+            name="document-text-outline"
+            size={24}
+            color={theme.colors.textSecondary}
+            style={styles.inputIcon}
+          />
+          <TextInput
+            style={[
+              styles.input,
+              styles.textArea,
+              { color: theme.colors.text },
+            ]}
+            value={shopData.notes}
+            onChangeText={(text) => setShopData({ ...shopData, notes: text })}
+            placeholder="Notes (Optional)"
+            placeholderTextColor={theme.colors.textSecondary}
+            multiline
+            numberOfLines={4}
+          />
+        </View>
 
         <Button
-          title="Save Shop"
+          title="Add Shop"
           onPress={handleSave}
           style={styles.saveButton}
+          icon="business"
         />
       </View>
     </ScrollView>
@@ -134,16 +181,43 @@ const getStyles = (theme) => ({
     flex: 1,
     backgroundColor: theme.colors.background,
   },
+  header: {
+    alignItems: "center",
+    marginVertical: theme.spacing.xl,
+    paddingHorizontal: theme.spacing.md,
+  },
+  icon: {
+    marginBottom: theme.spacing.md,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: "600",
+    marginBottom: theme.spacing.sm,
+    textAlign: "center",
+  },
+  description: {
+    fontSize: 16,
+    textAlign: "center",
+    lineHeight: 24,
+    marginBottom: theme.spacing.xl,
+  },
   form: {
     padding: theme.spacing.md,
   },
-  input: {
+  inputContainer: {
+    flexDirection: "row",
+    alignItems: "center",
     backgroundColor: theme.colors.surface,
-    color: theme.colors.text,
-    padding: theme.spacing.md,
     borderRadius: 8,
-    fontSize: 16,
     marginBottom: theme.spacing.md,
+  },
+  inputIcon: {
+    padding: theme.spacing.md,
+  },
+  input: {
+    flex: 1,
+    padding: theme.spacing.md,
+    fontSize: 16,
   },
   textArea: {
     height: 100,

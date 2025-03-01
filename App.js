@@ -404,10 +404,15 @@ const AppContent = () => {
   );
 };
 
-export default function App() {
+const App = () => {
   return (
     <ThemeProvider>
-      <AppContent />
+      <SafeAreaProvider>
+        <AppContent />
+        <StatusBar style="auto" />
+      </SafeAreaProvider>
     </ThemeProvider>
   );
-}
+};
+
+export default App;

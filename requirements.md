@@ -1,4 +1,15 @@
-# Collection Management App Requirements
+# Easy Collect Requirements
+
+### Recent UI Updates
+
+- [x] Full-width "Add Collection" button at bottom of screen
+- [x] Floating "Start Trip" button with text label
+- [x] Improved amount visibility in ActiveTripScreen
+  - [x] Compact layout with fixed width
+  - [x] Clear visibility toggle with eye icon
+  - [x] Payment method indicator (Cash/Online)
+  - [x] Semi-transparent background
+- [x] Better spacing and alignment in collection items
 
 ## Core Features
 
@@ -49,19 +60,20 @@
 
 ### UI/UX Features
 
-- [x] Dark/Light theme support
-- [x] Responsive design
-- [x] Search functionality
+- [x] Dark/Light theme
 - [x] Intuitive navigation
-- [x] Tab-based interfaces
-- [x] Confirmation dialogs
+- [x] Search functionality
+- [x] Clear payment indicators
+- [x] Amount privacy controls
+- [x] Status indicators
 - [x] Loading states
 - [x] Error handling
+- [x] Confirmation dialogs
 
 ### Data Management
 
-- [x] Local storage for all data
-- [x] Persistent theme preference
+- [x] Offline storage
+- [x] Data persistence
 - [x] Data validation
 - [x] Error handling
 - [x] Data backup/restore (AsyncStorage)
@@ -77,18 +89,41 @@
 
 ## Technical Requirements
 
-- [x] React Native implementation
-- [x] AsyncStorage for data persistence
-- [x] Theme context for styling
-- [x] Navigation stack
-- [x] Component reusability
-- [x] Proper error handling
-- [x] Code organization
-- [x] Performance optimization
+### Platform
 
-## Future Enhancements (Potential)
+- [x] React Native (Expo)
+- [x] iOS & Android support
+- [x] Offline-first architecture
 
-- [ ] Data export functionality
+### Storage
+
+- [x] AsyncStorage implementation
+- [x] Data structure validation
+- [x] Error handling
+
+### UI Components
+
+- [x] Reusable button component
+- [x] Search bar component
+- [x] Tab bar component
+- [x] Modal component
+- [x] List components
+- [x] Icon integration
+
+### Theme System
+
+- [x] Theme context
+- [x] Dark/Light modes
+- [x] Consistent styling
+- [x] Color system
+
+### Future Considerations
+
+- [ ] Data export
+- [ ] Cloud backup
+- [ ] Multi-user support
+- [ ] Analytics
+- [ ] Push notifications
 - [ ] Cloud backup
 - [ ] Multiple users support
 - [ ] Advanced analytics

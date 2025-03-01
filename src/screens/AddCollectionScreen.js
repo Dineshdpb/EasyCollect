@@ -1,8 +1,9 @@
 import React, { useState } from "react";
-import { View, TextInput, StyleSheet, Alert } from "react-native";
+import { View, Text, TextInput, StyleSheet, Alert } from "react-native";
 import { Button } from "../components/common/Button";
 import { storage } from "../storage/asyncStorage";
 import { useTheme } from "../context/ThemeContext";
+import { Ionicons } from "@expo/vector-icons";
 
 export default function AddCollectionScreen({ route, navigation }) {
   const [name, setName] = useState("");
@@ -48,8 +49,23 @@ export default function AddCollectionScreen({ route, navigation }) {
 
   return (
     <View style={styles.container}>
+      <View style={styles.header}>
+        <Ionicons
+          name="add-circle-outline"
+          size={60}
+          color={theme.colors.primary}
+          style={styles.icon}
+        />
+        <Text style={[styles.title, { color: theme.colors.text }]}>
+          Create New Collection
+        </Text>
+        <Text style={[styles.description, { color: theme.colors.textSecondary }]}>
+          Group your shops together for easier management{"\n"}and payment tracking
+        </Text>
+      </View>
+
       <TextInput
-        style={styles.input}
+        style={[styles.input, { color: theme.colors.text }]}
         value={name}
         onChangeText={setName}
         placeholder="Collection Name"
@@ -58,7 +74,12 @@ export default function AddCollectionScreen({ route, navigation }) {
         returnKeyType="done"
         onSubmitEditing={handleSave}
       />
-      <Button title="Save" onPress={handleSave} style={styles.saveButton} />
+      <Button 
+        title="Create Collection" 
+        onPress={handleSave} 
+        style={styles.saveButton}
+        icon="add-circle"
+      />
     </View>
   );
 }
@@ -69,9 +90,27 @@ const getStyles = (theme) => ({
     padding: theme.spacing.md,
     backgroundColor: theme.colors.background,
   },
+  header: {
+    alignItems: 'center',
+    marginVertical: theme.spacing.xl,
+  },
+  icon: {
+    marginBottom: theme.spacing.md,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: '600',
+    marginBottom: theme.spacing.sm,
+    textAlign: 'center',
+  },
+  description: {
+    fontSize: 16,
+    textAlign: 'center',
+    lineHeight: 24,
+    marginBottom: theme.spacing.xl,
+  },
   input: {
     backgroundColor: theme.colors.surface,
-    color: theme.colors.text,
     padding: theme.spacing.md,
     borderRadius: 8,
     fontSize: 16,

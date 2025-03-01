@@ -162,15 +162,24 @@ export default function TripDetailsScreen({ route, navigation }) {
       <View style={styles.shopDetails}>
         <View style={styles.detailRow}>
           <View style={styles.statItem}>
-            <Text style={styles.amount}>₹{item.amount || 0}</Text>
+            <Text style={styles.amount}>₹{item?.amount || 0}</Text>
             <Text style={styles.statLabel}>TOTAL</Text>
           </View>
           <View style={styles.statItem}>
-            <Text style={styles.amount}>₹{item.gpayAmount || 0}</Text>
+            <Text style={styles.amount}>
+              ₹{parseFloat(item?.gpayAmount) || 0}
+            </Text>
             <Text style={styles.statLabel}>ONLINE</Text>
           </View>
           <View style={styles.statItem}>
-            <Text style={styles.amount}>₹{item.cashAmount || 0}</Text>
+            <Text style={styles.amount}>
+              ₹
+              {item?.gpayAmount == 0 &&
+              item?.cashAmount == 0 &&
+              item?.amount > 0
+                ? parseFloat(item?.amount)
+                : parseFloat(item?.cashAmount) || 0}
+            </Text>
             <Text style={styles.statLabel}>CASH</Text>
           </View>
 
@@ -239,6 +248,14 @@ export default function TripDetailsScreen({ route, navigation }) {
         renderItem={renderShopItem}
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.listContainer}
+        ListEmptyComponent={
+          <View style={styles.emptyContainer}>
+            <Text style={styles.emptyText}>No Visited Shops Found.</Text>
+            <Text style={styles.emptySubText}>
+              It looks like you've not visited any shops!
+            </Text>
+          </View>
+        }
       />
       <Modal
         animationType="slide"
@@ -438,5 +455,18 @@ const getStyles = (theme) => ({
   cancelButton: {
     padding: theme.spacing.md,
     alignItems: "center",
+  },
+  emptyContainer: {
+    alignItems: "center",
+    marginTop: theme.spacing.xl,
+  },
+  emptyText: {
+    color: theme.colors.textSecondary,
+    fontSize: 16,
+    marginBottom: theme.spacing.sm,
+  },
+  emptySubText: {
+    color: theme.colors.textSecondary,
+    fontSize: 14,
   },
 });

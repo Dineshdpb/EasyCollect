@@ -28,11 +28,6 @@ export default function ActiveTripScreen({ route, navigation }) {
     //
   }, []);
 
-  // const handleBackPress = () => {
-  //   confirmEndTrip();
-  //   return true;
-  // };
-
   const loadTripData = async () => {
     // First check if there's an existing trip
     const existingTrip = await storage.getCurrentTrip();
@@ -205,91 +200,83 @@ export default function ActiveTripScreen({ route, navigation }) {
     });
   };
 
-  const filteredShops = shops.filter(
-    (shop) =>
-      shop.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      shop.address.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
-  const renderShopItem = ({ item }) => (
+  const renderShopItem = ({ item: shop }) => (
     <TouchableOpacity
-      style={styles.shopItem}
-      onPress={() =>
-        item.status === "PENDING" ? handleUpdateShop(item) : null
-      }
-      disabled={item.status === "VISITED"}
+      style={[styles.shopItem, { backgroundColor: theme.colors.surface }]}
+      onPress={() => handleUpdateShop(shop)}
     >
       <View style={styles.shopHeader}>
-        <Text style={styles.shopName}>{item.name}</Text>
-        <Text
-          style={[
-            styles.shopStatus,
-            {
-              color:
-                item.status === "VISITED"
-                  ? theme.colors.success
-                  : theme.colors.warning,
-            },
-          ]}
-        >
-          {item.status}
-        </Text>
-      </View>
-      <Text style={styles.shopAddress}>{item.address}</Text>
-      {item.status === "VISITED" && (
-        <>
-          <View style={styles.visitDetails}>
-            <View style={styles.amountContainer}>
-              <Text style={styles.amount}>
-                {visibleAmounts[item.id] ? `₹${item.amount || 0}` : "•••••"}
-              </Text>
-              <TouchableOpacity onPress={() => toggleAmountVisibility(item.id)}>
-                <Ionicons
-                  name={visibleAmounts[item.id] ? "eye-off" : "eye"}
-                  size={24}
-                  color={theme.colors.textSecondary}
-                />
-              </TouchableOpacity>
-            </View>
-            {item.isClosed && <Text style={styles.closedTag}>CLOSED</Text>}
-          </View>
-          <View style={styles.paymentMethodContainer}>
-            <Text style={styles.paymentMethod}>
-              {item.paymentMethod === "GPAY" ? (
-                <FontAwesome5
-                  name="google-pay"
-                  size={24}
-                  color={
-                    item.paymentMethod === "GPAY"
-                      ? theme.colors.text
-                      : theme.colors.textSecondary
-                  }
-                />
-              ) : (
-                <>
-                  <Ionicons
-                    name={
-                      item.paymentMethod === "GPAY"
-                        ? "phone-portrait-outline"
-                        : "cash-outline"
-                    }
-                    size={16}
-                    color={theme.colors.textSecondary}
-                    style={{ marginRight: theme.spacing.xs }}
-                  />
-                  {" CASH"}
-                </>
-              )}
+        <View style={styles.shopInfo}>
+          <Ionicons
+            name={
+              shop.status === "VISITED"
+                ? "checkmark-circle"
+                : "radio-button-off"
+            }
+            size={24}
+            color={
+              shop.status === "VISITED"
+                ? theme.colors.success
+                : theme.colors.textSecondary
+            }
+            style={styles.statusIcon}
+          />
+          <View style={styles.shopDetails}>
+            <Text style={[styles.shopName, { color: theme.colors.text }]}>
+              {shop.name}
             </Text>
-            <TouchableOpacity
-              style={styles.editButton}
-              onPress={() => handleEditShop(item)}
+            <Text
+              style={[
+                styles.shopAddress,
+                { color: theme.colors.textSecondary },
+              ]}
             >
-              <Ionicons name="pencil" size={20} color={theme.colors.primary} />
-            </TouchableOpacity>
+              {shop.address}
+            </Text>
+            {shop.status === "VISITED" && (
+              <View style={styles.amountContainer}>
+                <TouchableOpacity
+                  onPress={() => toggleAmountVisibility(shop.id)}
+                  style={styles.amountToggle}
+                >
+                  <View style={styles.amountRow}>
+                    <Ionicons
+                      name={
+                        shop.paymentMethod === "ONLINE"
+                          ? "phone-portrait"
+                          : "cash"
+                      }
+                      size={16}
+                      color={theme.colors.primary}
+                    />
+                    <Text
+                      style={[styles.amount, { color: theme.colors.text }]}
+                      numberOfLines={1}
+                    >
+                      {visibleAmounts[shop.id]
+                        ? `₹${shop.amount || 0}`
+                        : "Tap to view"}
+                    </Text>
+                    <Ionicons
+                      name={
+                        visibleAmounts[shop.id]
+                          ? "eye-outline"
+                          : "eye-off-outline"
+                      }
+                      size={16}
+                      color={theme.colors.textSecondary}
+                    />
+                  </View>
+                </TouchableOpacity>
+              </View>
+            )}
           </View>
-          {item.notes && <Text style={styles.notes}>{item.notes}</Text>}
-        </>
+        </View>
+      </View>
+      {shop.status === "VISITED" && shop.notes && (
+        <Text style={[styles.notes, { color: theme.colors.textSecondary }]}>
+          <Ionicons name="document-text" size={14} /> {shop.notes}
+        </Text>
       )}
     </TouchableOpacity>
   );
@@ -299,16 +286,47 @@ export default function ActiveTripScreen({ route, navigation }) {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>{collectionName}</Text>
-        <Text style={styles.headerSubtitle}>
-          {shops.filter((s) => s.status === "VISITED").length} of {shops.length}{" "}
-          shops visited
-        </Text>
-        {currentTrip?.totalAmount > 0 && (
-          <Text style={styles.totalAmount}>
-            Total Collection: ₹{currentTrip.totalAmount}
+        <Ionicons
+          name="walk"
+          size={32}
+          color={theme.colors.primary}
+          style={styles.headerIcon}
+        />
+        <View style={styles.headerInfo}>
+          <Text style={[styles.headerTitle, { color: theme.colors.text }]}>
+            Collection Trip
           </Text>
-        )}
+          <Text
+            style={[
+              styles.headerSubtitle,
+              { color: theme.colors.textSecondary },
+            ]}
+          >
+            {collectionName}
+          </Text>
+        </View>
+        <View style={styles.tripStats}>
+          <View style={styles.statItem}>
+            <Text style={[styles.statValue, { color: theme.colors.text }]}>
+              {currentTrip?.visitedShops || 0}/{shops.length}
+            </Text>
+            <Text
+              style={[styles.statLabel, { color: theme.colors.textSecondary }]}
+            >
+              Visited
+            </Text>
+          </View>
+          <View style={styles.statItem}>
+            <Text style={[styles.statValue, { color: theme.colors.text }]}>
+              ₹{currentTrip?.totalAmount || 0}
+            </Text>
+            <Text
+              style={[styles.statLabel, { color: theme.colors.textSecondary }]}
+            >
+              Collected
+            </Text>
+          </View>
+        </View>
       </View>
 
       <SearchBar
@@ -318,17 +336,26 @@ export default function ActiveTripScreen({ route, navigation }) {
       />
 
       <FlatList
-        data={filteredShops}
+        data={shops.filter((shop) =>
+          shop.name.toLowerCase().includes(searchQuery.toLowerCase())
+        )}
         renderItem={renderShopItem}
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.listContainer}
       />
 
-      <Button
-        title="End Collection Trip"
+      <TouchableOpacity
+        style={[
+          styles.endTripButton,
+          { backgroundColor: theme.colors.error },
+        ]}
         onPress={confirmEndTrip}
-        style={styles.endButton}
-      />
+      >
+        <View style={styles.endTripContent}>
+          <Ionicons name="flag" size={24} color="white" />
+          <Text style={styles.endTripText}>End Trip</Text>
+        </View>
+      </TouchableOpacity>
     </View>
   );
 }
@@ -339,103 +366,122 @@ const getStyles = (theme) => ({
     backgroundColor: theme.colors.background,
   },
   header: {
-    backgroundColor: theme.colors.surface,
     padding: theme.spacing.md,
+    backgroundColor: theme.colors.surface,
+    flexDirection: "row",
     alignItems: "center",
+    borderBottomWidth: 1,
+    borderBottomColor: theme.colors.border,
+  },
+  headerIcon: {
+    marginRight: theme.spacing.md,
+  },
+  headerInfo: {
+    flex: 1,
   },
   headerTitle: {
-    color: theme.colors.text,
     fontSize: 20,
-    fontWeight: "bold",
-    marginBottom: theme.spacing.xs,
+    fontWeight: "600",
   },
   headerSubtitle: {
-    color: theme.colors.textSecondary,
-    fontSize: 16,
+    fontSize: 14,
   },
-  totalAmount: {
-    color: theme.colors.success,
-    fontSize: 18,
+  tripStats: {
+    flexDirection: "row",
+    gap: theme.spacing.md,
+  },
+  statItem: {
+    alignItems: "flex-end",
+  },
+  statValue: {
+    fontSize: 16,
     fontWeight: "600",
-    marginTop: theme.spacing.sm,
+  },
+  statLabel: {
+    fontSize: 12,
   },
   listContainer: {
     padding: theme.spacing.md,
   },
   shopItem: {
-    backgroundColor: theme.colors.surface,
     padding: theme.spacing.md,
     borderRadius: 8,
     marginBottom: theme.spacing.md,
-  },
-  visitedShop: {
-    borderLeftWidth: 4,
-    borderLeftColor: theme.colors.success,
   },
   shopHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
   },
-  shopName: {
-    color: theme.colors.text,
-    fontSize: 16,
-    fontWeight: "600",
+  shopInfo: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    flex: 1,
   },
-  shopStatus: {
-    fontSize: 14,
-    fontWeight: "bold",
+  shopDetails: {
+    flex: 1,
+  },
+  statusIcon: {
+    marginRight: theme.spacing.sm,
+    marginTop: 2,
+  },
+  shopName: {
+    fontSize: 16,
+    fontWeight: "500",
+    marginBottom: 2,
   },
   shopAddress: {
-    color: theme.colors.textSecondary,
     fontSize: 14,
-    marginTop: theme.spacing.xs,
-  },
-  visitDetails: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginTop: theme.spacing.sm,
-    paddingTop: theme.spacing.sm,
-    borderTopWidth: 1,
-    borderTopColor: theme.colors.background,
+    marginBottom: theme.spacing.xs,
   },
   amountContainer: {
+    marginTop: theme.spacing.xs,
+  },
+  amountToggle: {
+    padding: theme.spacing.xs,
+    backgroundColor: theme.colors.background + "80",
+    borderRadius: 4,
+    alignSelf: "flex-start",
+  },
+  amountRow: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 8,
+    gap: theme.spacing.xs,
   },
   amount: {
-    color: theme.colors.success,
     fontSize: 16,
-    fontWeight: "bold",
+    minWidth: 80,
   },
-  closedTag: {
-    color: theme.colors.error,
-    fontSize: 14,
-    fontWeight: "bold",
+  paymentIcon: {
+    marginRight: theme.spacing.xs,
   },
-  endButton: {
-    margin: theme.spacing.md,
-    backgroundColor: theme.colors.error,
-  },
-  paymentMethodContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginTop: theme.spacing.xs,
-  },
-  paymentMethod: {
-    color: theme.colors.textSecondary,
-    fontSize: 14,
-  },
-  editButton: {
-    padding: theme.spacing.xs,
+  visibilityIcon: {
+    marginLeft: theme.spacing.xs,
   },
   notes: {
-    color: theme.colors.textSecondary,
     fontSize: 14,
-    fontStyle: "italic",
-    marginTop: theme.spacing.xs,
+    marginTop: theme.spacing.sm,
+  },
+  endTripButton: {
+    position: 'absolute',
+    bottom: theme.spacing.lg,
+    right: theme.spacing.md,
+    borderRadius: 8,
+    padding: theme.spacing.sm,
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+  },
+  endTripContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: theme.spacing.sm,
+  },
+  endTripText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: '600',
   },
 });

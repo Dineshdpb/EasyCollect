@@ -70,7 +70,7 @@ export default function EditShopScreen({ route, navigation }) {
           style={styles.input}
           value={shopData.address}
           onChangeText={(text) => setShopData({ ...shopData, address: text })}
-          placeholder="Shop Address"
+          placeholder="Shop Address (Optional)"
           placeholderTextColor={theme.colors.textSecondary}
           multiline
         />
