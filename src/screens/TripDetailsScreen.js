@@ -23,6 +23,7 @@ export default function TripDetailsScreen({ route, navigation }) {
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedShop, setSelectedShop] = useState(null);
   const [cloneConfirmVisible, setCloneConfirmVisible] = useState(false);
+  const [notVisitedShops, setNotVisitedShops] = useState([]);
 
   useEffect(() => {
     loadTripDetails();
@@ -43,14 +44,20 @@ export default function TripDetailsScreen({ route, navigation }) {
     const collectionData = await storage.getCollectionById(collectionId);
     setCollection(collectionData);
     const tripData = collectionData.trips.find((t) => t.id === tripId);
-    console.log("tripData", tripData.shops);
+    const visitedShopIds = new Set(tripData.shops.map((shop) => shop.id));
+    const notVisited = collectionData.shops.filter(
+      (shop) => !visitedShopIds.has(shop.id)
+    );
+    setNotVisitedShops(notVisited);
+
     let gpaySum = 0;
     let cashSum = 0;
     for (let i = 0; i < tripData.shops?.length; i++) {
       gpaySum += parseFloat(tripData.shops[i].gpayAmount);
       cashSum += parseFloat(tripData.shops[i].cashAmount);
     }
-    setTrip({ ...tripData, gpaySum, cashSum });
+
+    setTrip({ ...tripData, gpaySum, cashSum, totalAmount: gpaySum + cashSum });
 
     navigation.setOptions({
       title: `Trip - ${new Date(tripData.startTime).toLocaleDateString()}`,
@@ -158,7 +165,6 @@ export default function TripDetailsScreen({ route, navigation }) {
         tripId: trip.id,
         onUpdate: async (updateData) => {
           try {
-            console.log("triptriptrip", trip);
             const updatedTrip = {
               ...trip,
               totalAmount: trip.shops.reduce(
@@ -211,7 +217,9 @@ export default function TripDetailsScreen({ route, navigation }) {
       const clonedTrip = {
         ...trip,
         id: Date.now().toString(),
-        name: `Copy of ${trip.name || ""}`.trim(),
+        name: `Copy of ${
+          new Date(trip.startTime).toLocaleTimeString() || ""
+        } `.trim(),
         startTime: trip.startTime,
         endTime: trip.endTime,
         isCloned: true,
@@ -284,70 +292,75 @@ export default function TripDetailsScreen({ route, navigation }) {
     }
   };
 
-  const renderShopItem = ({ item }) => (
-    <TouchableOpacity
-      style={[styles.shopItem, { backgroundColor: theme.colors.surface }]}
-      onPress={() => handleShopPress(item)}
-    >
-      <View style={styles.shopHeader}>
-        <Text style={styles.shopName}>{item.name}</Text>
-        <Text style={styles.visitTime}>
-          {new Date(item.visitTime).toLocaleTimeString()}
-        </Text>
+  const renderShopItem = ({ item, isNotVisited = false }) =>
+    isNotVisited ? (
+      <View
+        style={[styles.shopItem, { backgroundColor: theme.colors.surface }]}
+      >
+        <Text style={styles.shopName}>{item.item.name}</Text>
       </View>
-
-      <Text style={styles.shopAddress}>{item.address}</Text>
-
-      <View style={styles.shopDetails}>
-        <View style={styles.detailRow}>
-          <View style={styles.statItem}>
-            <Text style={styles.amount}>₹{item?.amount || 0}</Text>
-            <Text style={styles.statLabel}>TOTAL</Text>
-          </View>
-          <View style={styles.statItem}>
-            <Text style={styles.amount}>
-              ₹{parseFloat(item?.gpayAmount) || 0}
-            </Text>
-            <Text style={styles.statLabel}>ONLINE</Text>
-          </View>
-          <View style={styles.statItem}>
-            <Text style={styles.amount}>
-              ₹
-              {item?.gpayAmount == 0 &&
-              item?.cashAmount == 0 &&
-              item?.amount > 0
-                ? parseFloat(item?.amount)
-                : parseFloat(item?.cashAmount) || 0}
-            </Text>
-            <Text style={styles.statLabel}>CASH</Text>
-          </View>
-
-          {item.isClosed && <Text style={styles.closedTag}>CLOSED</Text>}
-        </View>
-        {item.notes && <Text style={styles.notes}>{item.notes}</Text>}
-        {item.previousAmounts && (
-          <View style={styles.historyContainer}>
-            <Text style={styles.historyTitle}>Previous Collections:</Text>
-            {item.previousAmounts.map((prev, index) => (
-              <Text key={index} style={styles.historyItem}>
-                {new Date(prev.date).toLocaleDateString()}: ₹{prev.amount}
-                {prev.notes && ` - ${prev.notes}`}
-              </Text>
-            ))}
-          </View>
-        )}
-      </View>
-      {trip.isCloned && item.isUpdated && (
-        <View style={styles.cloneBadge}>
-          <Text
-            style={[styles.cloneBadgeText, { color: theme.colors.primary }]}
-          >
-            Corrected
+    ) : (
+      <TouchableOpacity
+        style={[styles.shopItem, { backgroundColor: theme.colors.surface }]}
+        onPress={() => handleShopPress(item)}
+      >
+        <View style={styles.shopHeader}>
+          <Text style={styles.shopName}>{item.name}</Text>
+          <Text style={styles.visitTime}>
+            {new Date(item.visitTime).toLocaleTimeString()}
           </Text>
         </View>
-      )}
-    </TouchableOpacity>
-  );
+        <Text style={styles.shopAddress}>{item.address}</Text>
+        <View style={styles.shopDetails}>
+          <View style={styles.detailRow}>
+            <View style={styles.statItem}>
+              <Text style={styles.amount}>₹{item?.amount || 0}</Text>
+              <Text style={styles.statLabel}>TOTAL</Text>
+            </View>
+            <View style={styles.statItem}>
+              <Text style={styles.amount}>
+                ₹{parseFloat(item?.gpayAmount) || 0}
+              </Text>
+              <Text style={styles.statLabel}>ONLINE</Text>
+            </View>
+            <View style={styles.statItem}>
+              <Text style={styles.amount}>
+                ₹
+                {item?.gpayAmount == 0 &&
+                item?.cashAmount == 0 &&
+                item?.amount > 0
+                  ? parseFloat(item?.amount)
+                  : parseFloat(item?.cashAmount) || 0}
+              </Text>
+              <Text style={styles.statLabel}>CASH</Text>
+            </View>
+
+            {item.isClosed && <Text style={styles.closedTag}>CLOSED</Text>}
+          </View>
+          {item.notes && <Text style={styles.notes}>{item.notes}</Text>}
+          {item.previousAmounts && (
+            <View style={styles.historyContainer}>
+              <Text style={styles.historyTitle}>Previous Collections:</Text>
+              {item.previousAmounts.map((prev, index) => (
+                <Text key={index} style={styles.historyItem}>
+                  {new Date(prev.date).toLocaleDateString()}: ₹{prev.amount}
+                  {prev.notes && ` - ${prev.notes}`}
+                </Text>
+              ))}
+            </View>
+          )}
+        </View>
+        {trip.isCloned && item.isUpdated && (
+          <View style={styles.cloneBadge}>
+            <Text
+              style={[styles.cloneBadgeText, { color: theme.colors.primary }]}
+            >
+              Corrected
+            </Text>
+          </View>
+        )}
+      </TouchableOpacity>
+    );
 
   if (!trip) return null;
 
@@ -594,6 +607,11 @@ export default function TripDetailsScreen({ route, navigation }) {
       fontSize: 12,
       fontWeight: "500",
     },
+    datePickerText: {
+      color: theme.colors.text,
+      fontSize: 16,
+      marginRight: theme.spacing.md,
+    },
   });
 
   return (
@@ -656,6 +674,22 @@ export default function TripDetailsScreen({ route, navigation }) {
         contentContainerStyle={styles.listContainer}
       />
 
+      {notVisitedShops?.length ? (
+        <>
+          <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>
+            Not Visited Shops
+          </Text>
+
+          <FlatList
+            data={notVisitedShops}
+            renderItem={(item) => renderShopItem({ item, isNotVisited: true })}
+            keyExtractor={(item) => item.id}
+            contentContainerStyle={styles.listContainer}
+          />
+        </>
+      ) : (
+        <></>
+      )}
       <Modal
         animationType="slide"
         transparent={true}

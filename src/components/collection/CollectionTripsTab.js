@@ -7,10 +7,8 @@ import {
   TouchableOpacity,
 } from "react-native";
 import { useTheme } from "../../context/ThemeContext";
-import { SearchBar } from "../common/SearchBar";
 
 export function CollectionTripsTab({ collection, navigation }) {
-  const [searchQuery, setSearchQuery] = useState("");
   const { theme } = useTheme();
   const styles = getStyles(theme);
 
@@ -22,17 +20,13 @@ export function CollectionTripsTab({ collection, navigation }) {
     return `${hours}h ${minutes}m`;
   };
 
-  const filteredTrips = (collection?.trips || []).filter((trip) => {
-    const tripDate = new Date(trip.startTime).toLocaleDateString();
-    return (
-      tripDate.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      trip.totalAmount?.toString().includes(searchQuery)
-    );
-  });
-
   const renderTripItem = ({ item }) => {
     const tripDate = new Date(item.startTime);
-    const formattedDate = tripDate.toLocaleDateString();
+    const formattedDate = `${tripDate.getDate().toString().padStart(2, "0")}/${(
+      tripDate.getMonth() + 1
+    )
+      .toString()
+      .padStart(2, "0")}/${tripDate.getFullYear()}`;
     const formattedTime = tripDate.toLocaleTimeString([], {
       hour: "2-digit",
       minute: "2-digit",
@@ -54,7 +48,7 @@ export function CollectionTripsTab({ collection, navigation }) {
               <Text style={styles.tripDate}>{formattedDate}</Text>
               {item.isCloned && (
                 <View style={styles.cloneBadge}>
-                  <Text style={styles.cloneBadgeText}>Corrected</Text>
+                  <Text style={styles.cloneBadgeText}>Corrected Copy</Text>
                 </View>
               )}
             </View>
@@ -90,16 +84,8 @@ export function CollectionTripsTab({ collection, navigation }) {
 
   return (
     <View style={styles.container}>
-      <SearchBar
-        value={searchQuery}
-        onChangeText={setSearchQuery}
-        placeholder="Search trips..."
-      />
-
       <FlatList
-        data={(collection?.trips || []).sort(
-          (a, b) => new Date(b.startTime) - new Date(a.startTime)
-        )}
+        data={collection?.trips}
         renderItem={renderTripItem}
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.listContainer}
@@ -136,8 +122,8 @@ const getStyles = (theme) => ({
     marginBottom: theme.spacing.md,
   },
   titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: theme.spacing.sm,
   },
   tripDate: {
@@ -169,7 +155,7 @@ const getStyles = (theme) => ({
   cloneBadgeText: {
     color: theme.colors.primary,
     fontSize: 12,
-    fontWeight: '500',
+    fontWeight: "500",
   },
   tripStats: {
     flexDirection: "row",

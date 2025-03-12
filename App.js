@@ -30,7 +30,7 @@ import EditTripScreen from "./src/screens/EditTripScreen";
 import { storage, TRIP_STATUS } from "./src/storage/asyncStorage";
 import { ThemeProvider, useTheme } from "./src/context/ThemeContext";
 import { Button } from "./src/components/common/Button";
-import { Ionicons, FontAwesome5 } from "@expo/vector-icons";
+
 import { OngoingTripModal } from "./src/components/trip/OngoingTripModal";
 
 const Stack = createNativeStackNavigator();
